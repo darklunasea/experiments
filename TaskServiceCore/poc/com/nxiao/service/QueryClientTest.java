@@ -2,16 +2,16 @@ package com.nxiao.service;
 
 import org.json.simple.JSONObject;
 
-public class BasicZeroMqClientPoc
+public class QueryClientTest
 {
 	public static void main(String[] args) throws Exception
 	{
 		String host = "localhost";
-		Integer port = 9001;
+		Integer port = 9003;
 
-		BasicZeroMqClient client = new BasicZeroMqClient(host, port, "test_query_client");
+		BasicZeroMqClient client = new BasicZeroMqClient(host, port, "test_update_client1");
 		
-		int testRound = 100;
+		int testRound = 5000;
 		for(int i = 0; i < testRound; i++)
 		{
 			for(int j = 0; j < 10; j++)

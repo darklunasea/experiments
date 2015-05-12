@@ -1,7 +1,5 @@
 package com.nxiao.service.core.data;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 
 import com.nxiao.service.core.exception.ServiceStartUpException;
@@ -10,15 +8,14 @@ public class DataCache
 {
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	DataEnginePool redisEnginePool;
+	RedisEngine redisEngine;
 
 	public DataCache(int redisEnginePoolSize, String redisHost, String serviceName) throws ServiceStartUpException
 	{
 		try
 		{
 			logger.info("Initializing Data Cache...");
-			RedisEngine redisEngine = createRedisEngine(redisHost, serviceName);
-			this.redisEnginePool = new DataEnginePool(redisEnginePoolSize, redisEngine);
+			redisEngine = new RedisEngine(redisHost, serviceName);
 			logger.info("Data Cache initialized.");
 		}
 		catch (Exception e)
@@ -26,16 +23,10 @@ public class DataCache
 			throw new ServiceStartUpException("Failed to initialize data cache. Reason: " + e.getMessage(), e);
 		}
 	}
-
-	private RedisEngine createRedisEngine(String redisHost, String serviceName) throws IOException
-	{
-		RedisEngine redisEngine = new RedisEngine(redisHost, serviceName);
-		return redisEngine;
-	}
 	
-	private RedisEngine getRedisEngine()
+	protected RedisEngine getRedisEngine()
 	{
-		return (RedisEngine)redisEnginePool.getDataEngine();
+		return redisEngine;
 	}
 
 	public String getDataByKey(String key)

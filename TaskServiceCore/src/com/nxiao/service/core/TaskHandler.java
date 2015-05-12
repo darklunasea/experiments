@@ -1,5 +1,7 @@
 package com.nxiao.service.core;
 
+import com.nxiao.service.processor.ITaskProcessor;
+
 public class TaskHandler
 {
 	TaskType taskType;

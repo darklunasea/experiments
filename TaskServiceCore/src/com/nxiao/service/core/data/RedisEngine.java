@@ -1,51 +1,64 @@
 package com.nxiao.service.core.data;
 
 import redis.clients.jedis.Jedis;
-
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisEngine implements IDataEngine
-{	
-	Jedis jedis;
+{
 	String host;
 	String serviceKey;
-	
+	JedisPool pool;
+
 	public RedisEngine(String host, String serviceKey)
 	{
 		this.host = host;
 		this.serviceKey = serviceKey;
-		jedis = new Jedis(host);
+		pool = new JedisPool(new JedisPoolConfig(), host);
 	}
-	
+
 	public IDataEngine newSession() throws Exception
 	{
 		return new RedisEngine(this.host, this.serviceKey);
 	}
-	
+
 	public void close()
 	{
-		if(jedis != null)
+		if (pool != null)
 		{
-			jedis.close();
+			pool.destroy();
 		}
 	}
-	
+
 	public boolean exist(String key)
 	{
-		return jedis.hexists(serviceKey, key);
+		try (Jedis jedis = pool.getResource())
+		{
+			return jedis.hexists(serviceKey, key);
+		}
 	}
-	
+
 	public void setData(String key, String data)
 	{
-		jedis.hset(serviceKey, key, data);
+		try (Jedis jedis = pool.getResource())
+		{
+			jedis.hset(serviceKey, key, data);
+		}
 	}
-	
+
 	public String getData(String key)
 	{
-		return jedis.hget(serviceKey, key);
+		try (Jedis jedis = pool.getResource())
+		{
+			return jedis.hget(serviceKey, key);
+		}
 	}
-	
+
 	public void publish(String channel, String message)
 	{
-		jedis.publish(channel, message);
+		try (Jedis jedis = pool.getResource())
+		{
+			jedis.publish(channel, message);
+		}
 	}
 }

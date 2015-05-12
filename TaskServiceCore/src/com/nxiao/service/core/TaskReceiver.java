@@ -15,6 +15,7 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 {
 	private Logger logger = Logger.getLogger(this.getClass());
 
+	String serviceName;
 	TaskType taskType;
 	TaskManager taskManager;
 	Context context;
@@ -22,10 +23,12 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 	Socket backend;
 	Poller items;
 
-	public TaskReceiver(TaskType taskType, int clientRequestPort, int workerResponsePort) throws ServiceStartUpException
+	public TaskReceiver(String serviceName, TaskType taskType, int clientRequestPort, int workerResponsePort)
+			throws ServiceStartUpException
 	{
 		logger.info("Creating Receiver for [" + taskType.toString() + "]...");
 
+		this.serviceName = serviceName;
 		this.taskType = taskType;
 
 		context = ZMQ.context(1);
@@ -42,7 +45,7 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 
 		logger.info("Task Receiver created. Bind to port" + workerResponsePort);
 	}
-	
+
 	public void setTaskManager(TaskManager taskManager)
 	{
 		this.taskManager = taskManager;
@@ -84,9 +87,10 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 				byte[] callbackId = backend.recv(0);
 				backend.recv(0);
 				byte[] msg = backend.recv(0);
-				
-				logger.info("Response received from worker for client: " + new String(callbackId) + ", " + new String(msg));
-				
+
+				logger.info("Response received from worker for client: " + new String(callbackId) + ", "
+						+ new String(msg));
+
 				frontend.send(callbackId, ZMQ.SNDMORE);
 				frontend.sendMore("");
 				frontend.send(msg, 0);
@@ -96,41 +100,97 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 
 	private void onReceiveRequest(String requestId, String request)
 	{
+		String error = "";
+		JSONObject req;
 		try
 		{
-			Task task = createNewTask(requestId, request);
+			req = (JSONObject) JSONValue.parse(request);
+		}
+		catch (Exception e)
+		{
+			error = "Invalid request. Malformat in Json. Reason: " + e.getMessage();
+			logger.error(error, e);
+			sendErrorBackToClient(error);
+			return;
+		}
+
+		try
+		{
+			//validate request
+			String validationError = null;
+			if(!validateRequest(req, validationError))
+			{
+				//invalid request. notify client.
+				logger.error(validationError);
+				sendErrorBackToClient(validationError);
+				return;
+			}
+			
+			//create task for request
+			String key = getKeyFromRequest(req);
+			Task task = new Task(requestId, taskType, request, key);
 			taskManager.addTask(task);
 		}
 		catch (ServiceProcessException e)
 		{
-			logger.error("Failed to add task. Reason: " + e.getMessage());
-			TaskResponse resp = new TaskResponse(e.getMessage());
-			frontend.send(resp.getStringResponse());
+			error = "Failed to add task. Reason: " + e.getMessage();
+			logger.error(error, e);
+			sendErrorBackToClient(error);
+			return;
 		}
 	}
 
-	private Task createNewTask(String requestId, String request) throws ServiceProcessException
+	private void sendErrorBackToClient(String error)
 	{
-		String key = getKeyFromRequest(request);
-		Task task = new Task(requestId, taskType, request, key);
-		return task;
+		TaskResponse resp = new TaskResponse(error);
+		frontend.send(resp.getStringResponse());
 	}
 
-	private String getKeyFromRequest(String request) throws ServiceProcessException
+	private String getKeyFromRequest(JSONObject req) throws ServiceProcessException
 	{
-		try
+		String key = (String) req.get("key");
+		if (key == null || key.isEmpty())
 		{
-			JSONObject req = (JSONObject) JSONValue.parse(request);
-			String key = (String) req.get("key");
-			if (key == null || key.isEmpty())
+			throw new ServiceProcessException("Invalid request. No Keyword found in the request.");
+		}
+		return key;
+	}
+
+	protected boolean validateRequest(JSONObject request, String validationError) throws ServiceProcessException
+	{
+		if (!request.containsKey("service"))
+		{
+			validationError = "Invalid request. No service specified in request.";
+		}
+		else
+		{
+			String requestedService = (String) request.get("service");
+			if (!serviceName.equalsIgnoreCase(requestedService))
 			{
-				throw new ServiceProcessException("Invalid request. No Keyword found in the request.");
+				validationError = "Requested service mismatch. This service is: + " + serviceName
+						+ ". Requested service is: "
+						+ requestedService;
+				return false;
 			}
-			return key;
 		}
-		catch (Exception e)
+
+		if (!request.containsKey("task"))
 		{
-			throw new ServiceProcessException("Invalid request. Malformat in Json.");
+			validationError = "Invalid request. No task specified in request.";
+			return false;
 		}
+		else
+		{
+			String requestedTask = (String) request.get("task");
+			if (!taskType.toString().equalsIgnoreCase(requestedTask))
+			{
+				// requested task is not a QUERY task
+				validationError = "Requested Task mismatch. This task is: + " + taskType.toString()
+						+ ". Requested task is: "
+						+ requestedTask;
+				return false;
+			}
+		}
+		return true;
 	}
 }

@@ -1,50 +1,51 @@
 package com.nxiao.service.processor;
 
 import org.apache.log4j.Logger;
-import org.zeromq.ZMQ;
-import org.zeromq.ZMQ.Context;
-import org.zeromq.ZMQ.Socket;
+import org.json.simple.JSONObject;
 
-import com.nxiao.service.core.ITask;
-import com.nxiao.service.core.ITaskProcessor;
 import com.nxiao.service.core.TaskResponse;
 import com.nxiao.service.core.data.DataCache;
 import com.nxiao.service.core.exception.ServiceProcessException;
+import com.nxiao.service.core.exception.ServiceStartUpException;
 
-public class QueryTaskProcessor implements ITaskProcessor
+public class QueryTaskProcessor extends TaskProcessor implements ITaskProcessor
 {
 	private Logger logger = Logger.getLogger(this.getClass());
 
 	DataCache dataCache;
-	Socket responder;
 
-	public QueryTaskProcessor(DataCache dataCache, int queryWorkerPort)
+	public QueryTaskProcessor(int queryWorkerPort, DataCache dataCache)
 	{
-		this.dataCache = dataCache;		
-
-		//init response callback connection
-		Context context = ZMQ.context(1);
-		responder = context.socket(ZMQ.DEALER);
-		String uri = String.format("tcp://localhost:%d", queryWorkerPort);
-		responder.connect(uri);
+		super(queryWorkerPort);
+		this.dataCache = dataCache;
+		logger.info("Query Task Processor created.");
 	}
 
-	public void processTask(ITask task) throws ServiceProcessException
+	public ITaskProcessor newSession() throws ServiceStartUpException
 	{
-		String callbackId = task.getCallbackId();
-		String key = task.getKey();
-		String data = "";
-		String error = "";
+		return new QueryTaskProcessor(this.workerPort, this.dataCache);
+	}
 
-		if (key == null || key.isEmpty())
+	protected String validate(JSONObject request) throws ServiceProcessException
+	{
+		String validationError = null;
+		if (!request.containsKey("key"))
 		{
-			error = "Cannot find key in request.";
+			validationError = "Cannot find key in request.";
 		}
+		return validationError;
+	}
+
+	public TaskResponse process(JSONObject request) throws ServiceProcessException
+	{
+		String error = "";
+		String key = (String) request.get("key");
 
 		// retrieve data
+		String data = "";
 		try
 		{
-			if(dataCache.existKey(key))
+			if (dataCache.existKey(key))
 			{
 				data = dataCache.getDataByKey(key);
 			}
@@ -60,25 +61,6 @@ public class QueryTaskProcessor implements ITaskProcessor
 			logger.error(error, e);
 		}
 
-		try
-		{
-			// construct response
-			TaskResponse response = new TaskResponse(key, data, error);
-
-			// send response back to client
-			sendResponse(callbackId, response.getStringResponse());
-		}
-		catch (Exception e)
-		{
-			error = "Failed to send response back to client. key: " + key + ". Reason: " + e.getMessage();
-			logger.error(error, e);
-		}
-	}
-	
-	public void sendResponse(String callbackId, String response)
-	{
-		responder.sendMore(callbackId);
-		responder.sendMore("");
-		responder.send(response, 0);
+		return new TaskResponse(key, data, error);
 	}
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.nxiao.service.core.exception.ServiceStartUpException;
+import com.nxiao.service.processor.ITaskProcessor;
 
 public class BasicTaskService extends Thread
 {
@@ -60,7 +61,7 @@ public class BasicTaskService extends Thread
 		{
 			throw new ServiceStartUpException("At least one task handler is required.");
 		}
-		if (processorPoolSize <= 1)
+		if (processorPoolSize < 1)
 		{
 			throw new ServiceStartUpException("Processor Pool Size needs to be at least 1.");
 		}

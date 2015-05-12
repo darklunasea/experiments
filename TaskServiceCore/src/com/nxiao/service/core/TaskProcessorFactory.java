@@ -1,5 +1,6 @@
 package com.nxiao.service.core;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -7,8 +8,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.log4j.Logger;
 
 import com.nxiao.service.core.exception.ServiceProcessException;
+import com.nxiao.service.core.exception.ServiceStartUpException;
+import com.nxiao.service.processor.ITaskProcessor;
 
-public class TaskProcessor extends Thread implements ITaskProcessor
+public class TaskProcessorFactory extends Thread
 {
 	private Logger logger = Logger.getLogger(this.getClass());
 
@@ -17,10 +20,14 @@ public class TaskProcessor extends Thread implements ITaskProcessor
 	
 	boolean startedUpFlag = false;
 
-	public TaskProcessor(Map<TaskType, ITaskProcessor> processors)
+	public TaskProcessorFactory(Map<TaskType, ITaskProcessor> originalProcessors) throws ServiceStartUpException
 	{
 		taskQueue = new ConcurrentLinkedQueue<ITask>();
-		this.processors = processors;
+		this.processors = new HashMap<TaskType, ITaskProcessor>();
+		for(Map.Entry<TaskType, ITaskProcessor> originalProcessor : originalProcessors.entrySet())
+		{
+			processors.put(originalProcessor.getKey(), originalProcessor.getValue().newSession());
+		}
 	}
 	
 	public boolean startedUp()
@@ -52,7 +59,18 @@ public class TaskProcessor extends Thread implements ITaskProcessor
 		
 		while (!Thread.currentThread().isInterrupted())
 		{
-			if (!taskQueue.isEmpty())
+			if(taskQueue.isEmpty())
+			{
+				try
+				{
+					sleep(100);
+				}
+				catch (InterruptedException e)
+				{
+					logger.error("Error waiting for new task. Reason: " + e.getMessage(), e);;
+				}
+			}
+			else
 			{
 				try
 				{

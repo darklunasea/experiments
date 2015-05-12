@@ -9,13 +9,14 @@ import org.apache.log4j.Logger;
 
 import com.nxiao.service.core.exception.ServiceProcessException;
 import com.nxiao.service.core.exception.ServiceStartUpException;
+import com.nxiao.service.processor.ITaskProcessor;
 
 public class TaskManager extends Thread
 {
 	private Logger logger = Logger.getLogger(this.getClass());
 
 	Queue<ITask> taskQueue;
-	Map<Integer, TaskProcessor> processorBucketMap;
+	Map<Integer, TaskProcessorFactory> processorBucketMap;
 	int numOfBuckets;
 
 	boolean startedUpFlag = false;
@@ -38,13 +39,13 @@ public class TaskManager extends Thread
 		logger.info("Task manager initialized.");
 	}
 
-	private void initProcessorBuckets(int numOfBucket, Map<TaskType, ITaskProcessor> processors)
+	private void initProcessorBuckets(int numOfBucket, Map<TaskType, ITaskProcessor> processors) throws ServiceStartUpException
 	{
 		logger.info("Creating processor buckets...");
-		processorBucketMap = new HashMap<Integer, TaskProcessor>();
+		processorBucketMap = new HashMap<Integer, TaskProcessorFactory>();
 		for (int bucketIndex = 0; bucketIndex < numOfBuckets; bucketIndex++)
 		{
-			processorBucketMap.put(bucketIndex, new TaskProcessor(processors));
+			processorBucketMap.put(bucketIndex, new TaskProcessorFactory(processors));
 		}
 		logger.info("Processor buckets created.");
 	}
@@ -91,13 +92,13 @@ public class TaskManager extends Thread
 		}
 	}
 
-	private void startAllProcessors(Map<Integer, TaskProcessor> processors)
+	private void startAllProcessors(Map<Integer, TaskProcessorFactory> processors)
 	{
-		for (Map.Entry<Integer,TaskProcessor> processorEntry : processors.entrySet())
+		for (Map.Entry<Integer,TaskProcessorFactory> processorEntry : processors.entrySet())
 		{
 			try
 			{
-				TaskProcessor processor = processorEntry.getValue();
+				TaskProcessorFactory processor = processorEntry.getValue();
 				processor.start();
 				while (!processor.startedUp())
 				{
@@ -138,7 +139,7 @@ public class TaskManager extends Thread
 			throw new ServiceProcessException("Invalid bucket index: " + bucketIndex + ". Total number of buckets is: "
 					+ numOfBuckets);
 		}
-		TaskProcessor processor = processorBucketMap.get(bucketIndex);
+		TaskProcessorFactory processor = processorBucketMap.get(bucketIndex);
 		processor.addTask(task);
 	}
 }
