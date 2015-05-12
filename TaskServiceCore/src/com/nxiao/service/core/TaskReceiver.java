@@ -24,7 +24,7 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 
 	public TaskReceiver(TaskType taskType, int clientRequestPort, int workerResponsePort) throws ServiceStartUpException
 	{
-		logger.info("Creating Sec Query Task Receiver...");
+		logger.info("Creating Receiver for [" + taskType.toString() + "]...");
 
 		this.taskType = taskType;
 
@@ -40,7 +40,7 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 		items.register(frontend, Poller.POLLIN);
 		items.register(backend, Poller.POLLIN);
 
-		logger.info("Sec Query Task Receiver created. Bind to port" + workerResponsePort);
+		logger.info("Task Receiver created. Bind to port" + workerResponsePort);
 	}
 	
 	public void setTaskManager(TaskManager taskManager)
@@ -58,7 +58,7 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 	@Override
 	public void run()
 	{
-		logger.info("Sec Query Task Receiver start running.");
+		logger.info("Task Receiver for type [" + taskType.toString() + "] start running.");
 		while (!Thread.currentThread().isInterrupted())
 		{
 			// poll and memorize multipart detection
@@ -73,20 +73,19 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 
 				String requestId = new String(id);
 				String request = new String(msg);
-				logger.info("Query request received from client: " + requestId + ", request: " + request);
+				logger.info("Request received from client: " + requestId + ", request: " + request);
 
 				onReceiveRequest(requestId, request);
 			}
 			if (items.pollin(1))
 			{
 				// pass worker response to client
-				backend.recv(0);  //worker id. ignore
 				backend.recv(0);
 				byte[] callbackId = backend.recv(0);
 				backend.recv(0);
 				byte[] msg = backend.recv(0);
 				
-				logger.info("Query response received from worker for client: " + new String(callbackId));
+				logger.info("Response received from worker for client: " + new String(callbackId) + ", " + new String(msg));
 				
 				frontend.send(callbackId, ZMQ.SNDMORE);
 				frontend.sendMore("");

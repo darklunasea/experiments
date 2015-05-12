@@ -38,7 +38,8 @@ public class TaskProcessor extends Thread implements ITaskProcessor
 		ITaskProcessor processor = processors.get(task.getTaskType());
 		if (processor == null)
 		{
-			throw new ServiceProcessException("Task type [" + task.getTaskType() + "] doesn't have corresponding processor registered.");
+			throw new ServiceProcessException("Task type [" + task.getTaskType()
+					+ "] doesn't have corresponding processor registered.");
 		}
 		processor.processTask(task);
 	}
@@ -51,7 +52,7 @@ public class TaskProcessor extends Thread implements ITaskProcessor
 		
 		while (!Thread.currentThread().isInterrupted())
 		{
-			while (!taskQueue.isEmpty())
+			if (!taskQueue.isEmpty())
 			{
 				try
 				{

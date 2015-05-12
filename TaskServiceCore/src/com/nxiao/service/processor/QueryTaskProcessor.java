@@ -24,7 +24,7 @@ public class QueryTaskProcessor implements ITaskProcessor
 
 		//init response callback connection
 		Context context = ZMQ.context(1);
-		responder = context.socket(ZMQ.REQ);
+		responder = context.socket(ZMQ.DEALER);
 		String uri = String.format("tcp://localhost:%d", queryWorkerPort);
 		responder.connect(uri);
 	}
@@ -44,7 +44,15 @@ public class QueryTaskProcessor implements ITaskProcessor
 		// retrieve data
 		try
 		{
-			data = dataCache.getDataByKey(key);
+			if(dataCache.existKey(key))
+			{
+				data = dataCache.getDataByKey(key);
+			}
+			else
+			{
+				error = "Requested key doesn't exist in data cache. Key: " + key;
+				logger.info(error);
+			}
 		}
 		catch (Exception e)
 		{

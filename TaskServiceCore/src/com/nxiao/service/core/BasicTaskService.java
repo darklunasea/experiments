@@ -1,5 +1,6 @@
 package com.nxiao.service.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,8 @@ public class BasicTaskService extends Thread
 
 		this.serviceName = serviceName;
 
+		// unpack receivers and processors from the handlers
+		receivers = new ArrayList<ITaskReceiver>();
 		Map<TaskType, ITaskProcessor> processors = new HashMap<TaskType, ITaskProcessor>();
 		for (TaskHandler handler : taskHandlers)
 		{
@@ -34,6 +37,7 @@ public class BasicTaskService extends Thread
 			processors.put(handler.getTaskType(), handler.getTaskProcessor());
 		}
 
+		// init task manager
 		taskManager = new TaskManager(processorPoolSize, processors);
 		// assign task manager to the receivers
 		for (ITaskReceiver receiver : receivers)

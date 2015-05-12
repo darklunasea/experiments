@@ -27,11 +27,11 @@ public class DataService
 	{
 		String serviceName = "test_service";
 
-		int processorPoolSize = 10;
+		int processorPoolSize = 5;
 
 		// init data cache
 		String redisHost = "172.16.43.90";
-		int redisConnPoolSize = 10;
+		int redisConnPoolSize = 5;
 		DataCache dataCache = new DataCache(redisConnPoolSize, redisHost, serviceName);
 
 		// init receiver and processors

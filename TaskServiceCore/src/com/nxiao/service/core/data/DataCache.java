@@ -48,4 +48,9 @@ public class DataCache
 	{
 		getRedisEngine().setData(key, data);
 	}
+	
+	public boolean existKey(String key)
+	{
+		return getRedisEngine().exist(key);
+	}
 }
