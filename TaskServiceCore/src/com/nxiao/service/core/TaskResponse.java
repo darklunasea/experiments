@@ -1,8 +1,8 @@
-package com.nxiao.service.core.query;
+package com.nxiao.service.core;
 
 import org.json.simple.JSONObject;
 
-public class QueryResponse
+public class TaskResponse
 {
 	static final String KEY = "key";
 	static final String DATA = "data";
@@ -10,24 +10,24 @@ public class QueryResponse
 
 	JSONObject response = new JSONObject();
 
-	public QueryResponse()
+	public TaskResponse()
 	{
 	}
 
-	public QueryResponse(String key, String data)
+	public TaskResponse(String key, String data)
 	{
 		response.put(KEY, key);
 		response.put(DATA, data);
 	}
 
-	public QueryResponse(String key, String data, String error)
+	public TaskResponse(String key, String data, String error)
 	{
 		response.put(KEY, key);
 		response.put(DATA, data);
 		response.put(ERROR, error);
 	}
 
-	public QueryResponse(String error)
+	public TaskResponse(String error)
 	{
 		response.put(ERROR, error);
 	}

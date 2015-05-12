@@ -7,10 +7,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 
-import com.nxiao.service.core.data.DataCache;
 import com.nxiao.service.core.exception.ServiceProcessException;
 import com.nxiao.service.core.exception.ServiceStartUpException;
-import com.nxiao.service.core.publisher.IPublisher;
 
 public class TaskManager extends Thread
 {
@@ -22,7 +20,7 @@ public class TaskManager extends Thread
 
 	boolean startedUpFlag = false;
 
-	public TaskManager(int numOfBuckets, DataCache dataCache, IPublisher publisher)
+	public TaskManager(int numOfBuckets, Map<TaskType, ITaskProcessor> processors)
 			throws ServiceStartUpException
 	{
 		logger.info("Initializing task manager...");
@@ -35,18 +33,18 @@ public class TaskManager extends Thread
 			throw new ServiceStartUpException("Invalid bucket number.");
 		}
 		this.numOfBuckets = numOfBuckets;
-		initProcessorBuckets(numOfBuckets, dataCache, publisher);
+		initProcessorBuckets(numOfBuckets, processors);
 
 		logger.info("Task manager initialized.");
 	}
 
-	private void initProcessorBuckets(int numOfBucket, DataCache dataCache, IPublisher publisher)
+	private void initProcessorBuckets(int numOfBucket, Map<TaskType, ITaskProcessor> processors)
 	{
 		logger.info("Creating processor buckets...");
 		processorBucketMap = new HashMap<Integer, TaskProcessor>();
 		for (int bucketIndex = 0; bucketIndex < numOfBuckets; bucketIndex++)
 		{
-			processorBucketMap.put(bucketIndex, new TaskProcessor(dataCache, publisher));
+			processorBucketMap.put(bucketIndex, new TaskProcessor(processors));
 		}
 		logger.info("Processor buckets created.");
 	}

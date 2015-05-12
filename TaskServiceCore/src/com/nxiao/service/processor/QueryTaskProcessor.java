@@ -1,4 +1,4 @@
-package com.nxiao.service.core.query;
+package com.nxiao.service.processor;
 
 import org.apache.log4j.Logger;
 import org.zeromq.ZMQ;
@@ -7,6 +7,7 @@ import org.zeromq.ZMQ.Socket;
 
 import com.nxiao.service.core.ITask;
 import com.nxiao.service.core.ITaskProcessor;
+import com.nxiao.service.core.TaskResponse;
 import com.nxiao.service.core.data.DataCache;
 import com.nxiao.service.core.exception.ServiceProcessException;
 
@@ -54,7 +55,7 @@ public class QueryTaskProcessor implements ITaskProcessor
 		try
 		{
 			// construct response
-			QueryResponse response = new QueryResponse(key, data, error);
+			TaskResponse response = new TaskResponse(key, data, error);
 
 			// send response back to client
 			sendResponse(callbackId, response.getStringResponse());

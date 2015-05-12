@@ -10,9 +10,8 @@ import org.zeromq.ZMQ.Socket;
 
 import com.nxiao.service.core.exception.ServiceProcessException;
 import com.nxiao.service.core.exception.ServiceStartUpException;
-import com.nxiao.service.core.query.QueryResponse;
 
-public class TaskReceiver extends Thread
+public class TaskReceiver extends Thread implements ITaskReceiver
 {
 	private Logger logger = Logger.getLogger(this.getClass());
 
@@ -23,12 +22,11 @@ public class TaskReceiver extends Thread
 	Socket backend;
 	Poller items;
 
-	public TaskReceiver(TaskType taskType, TaskManager taskManager, int clientRequestPort, int workerResponsePort) throws ServiceStartUpException
+	public TaskReceiver(TaskType taskType, int clientRequestPort, int workerResponsePort) throws ServiceStartUpException
 	{
 		logger.info("Creating Sec Query Task Receiver...");
 
 		this.taskType = taskType;
-		this.taskManager = taskManager;
 
 		context = ZMQ.context(1);
 		frontend = context.socket(ZMQ.ROUTER);
@@ -43,6 +41,11 @@ public class TaskReceiver extends Thread
 		items.register(backend, Poller.POLLIN);
 
 		logger.info("Sec Query Task Receiver created. Bind to port" + workerResponsePort);
+	}
+	
+	public void setTaskManager(TaskManager taskManager)
+	{
+		this.taskManager = taskManager;
 	}
 
 	public void close()
@@ -102,7 +105,7 @@ public class TaskReceiver extends Thread
 		catch (ServiceProcessException e)
 		{
 			logger.error("Failed to add task. Reason: " + e.getMessage());
-			QueryResponse resp = new QueryResponse(e.getMessage());
+			TaskResponse resp = new TaskResponse(e.getMessage());
 			frontend.send(resp.getStringResponse());
 		}
 	}

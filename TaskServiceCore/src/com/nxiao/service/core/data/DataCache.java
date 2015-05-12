@@ -43,4 +43,9 @@ public class DataCache
 		String data = getRedisEngine().getData(key);
 		return data;
 	}
+	
+	public void setDataByKey(String key, String data)
+	{
+		getRedisEngine().setData(key, data);
+	}
 }

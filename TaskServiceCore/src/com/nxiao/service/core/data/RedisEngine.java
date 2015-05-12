@@ -43,4 +43,9 @@ public class RedisEngine implements IDataEngine
 	{
 		return jedis.hget(serviceKey, key);
 	}
+	
+	public void publish(String channel, String message)
+	{
+		jedis.publish(channel, message);
+	}
 }
