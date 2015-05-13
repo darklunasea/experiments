@@ -2,6 +2,7 @@ package com.nxiao.service.processor;
 
 import org.json.simple.JSONObject;
 
+import com.nxiao.service.core.ServiceContext;
 import com.nxiao.service.core.TaskResponse;
 import com.nxiao.service.core.data.DataCache;
 import com.nxiao.service.core.exception.ServiceProcessException;
@@ -11,9 +12,9 @@ public abstract class DataTaskProcessor extends TaskProcessor implements ITaskPr
 {
 	DataCache dataCache;
 
-	public DataTaskProcessor(int workerPort, DataCache dataCache)
+	public DataTaskProcessor(ServiceContext serviceContext, int workerPort, DataCache dataCache)
 	{
-		super(workerPort);
+		super(serviceContext, workerPort);
 		this.dataCache = dataCache;
 	}
 	public abstract ITaskProcessor newSession() throws ServiceStartUpException;

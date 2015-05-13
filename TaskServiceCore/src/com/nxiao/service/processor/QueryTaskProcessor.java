@@ -3,6 +3,7 @@ package com.nxiao.service.processor;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
+import com.nxiao.service.core.ServiceContext;
 import com.nxiao.service.core.TaskResponse;
 import com.nxiao.service.core.data.DataCache;
 import com.nxiao.service.core.exception.ServiceProcessException;
@@ -12,15 +13,15 @@ public class QueryTaskProcessor extends DataTaskProcessor implements ITaskProces
 {
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	public QueryTaskProcessor(int queryWorkerPort, DataCache dataCache)
+	public QueryTaskProcessor(ServiceContext serviceContext, int queryWorkerPort, DataCache dataCache)
 	{
-		super(queryWorkerPort, dataCache);
+		super(serviceContext, queryWorkerPort, dataCache);
 		logger.info("Query Task Processor created.");
 	}
 
 	public ITaskProcessor newSession() throws ServiceStartUpException
 	{
-		return new QueryTaskProcessor(this.workerPort, this.dataCache);
+		return new QueryTaskProcessor(this.serviceContext, this.workerPort, this.dataCache);
 	}
 
 	protected String validate(JSONObject request) throws ServiceProcessException

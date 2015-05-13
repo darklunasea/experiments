@@ -10,7 +10,7 @@ public class DataCache
 
 	RedisEngine redisEngine;
 
-	public DataCache(int redisEnginePoolSize, String redisHost, String serviceName) throws ServiceStartUpException
+	public DataCache(int redisEnginePoolSize, String redisHost) throws ServiceStartUpException
 	{
 		try
 		{

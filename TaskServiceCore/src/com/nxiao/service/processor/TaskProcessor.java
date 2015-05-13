@@ -8,18 +8,21 @@ import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 
 import com.nxiao.service.core.ITask;
+import com.nxiao.service.core.ServiceContext;
 import com.nxiao.service.core.TaskResponse;
 import com.nxiao.service.core.exception.ServiceProcessException;
 
 public abstract class TaskProcessor implements ITaskProcessor
 {
 	private Logger logger = Logger.getLogger(this.getClass());
-
+	
+	ServiceContext serviceContext;
 	int workerPort;
 	Socket responder;
 
-	public TaskProcessor(int workerPort)
+	public TaskProcessor(ServiceContext serviceContext, int workerPort)
 	{
+		this.serviceContext = serviceContext;
 		this.workerPort = workerPort;
 
 		// init response callback connection

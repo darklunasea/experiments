@@ -3,6 +3,7 @@ package com.nxiao.service.processor;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 
+import com.nxiao.service.core.ServiceContext;
 import com.nxiao.service.core.TaskResponse;
 import com.nxiao.service.core.data.DataCache;
 import com.nxiao.service.core.exception.ServiceProcessException;
@@ -15,16 +16,16 @@ public class UpdateTaskProcessor extends DataTaskProcessor implements ITaskProce
 
 	IPublisher publisher;
 
-	public UpdateTaskProcessor(int updateWorkerPort, DataCache dataCache, IPublisher publisher)
+	public UpdateTaskProcessor(ServiceContext serviceContext, int updateWorkerPort, DataCache dataCache, IPublisher publisher)
 	{
-		super(updateWorkerPort, dataCache);
+		super(serviceContext, updateWorkerPort, dataCache);
 		this.publisher = publisher;
 		logger.info("Update Task Processor created.");
 	}
 
 	public ITaskProcessor newSession() throws ServiceStartUpException
 	{
-		return new UpdateTaskProcessor(this.workerPort, this.dataCache, this.publisher);
+		return new UpdateTaskProcessor(this.serviceContext, this.workerPort, this.dataCache, this.publisher);
 	}
 
 	protected String validate(JSONObject request) throws ServiceProcessException
@@ -60,5 +61,10 @@ public class UpdateTaskProcessor extends DataTaskProcessor implements ITaskProce
 		}
 
 		return new TaskResponse(key, "", error);
+	}
+	
+	protected void publishUpdate()
+	{
+		String topic = "";
 	}
 }

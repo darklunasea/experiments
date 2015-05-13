@@ -6,6 +6,8 @@ import java.util.List;
 import com.nxiao.service.core.BasicTaskService;
 import com.nxiao.service.core.TaskHandler;
 import com.nxiao.service.core.TaskReceiver;
+import com.nxiao.service.core.ServiceContext;
+import com.nxiao.service.core.TaskServiceParam;
 import com.nxiao.service.core.TaskType;
 import com.nxiao.service.core.data.DataCache;
 import com.nxiao.service.core.exception.ServiceStartUpException;
@@ -17,44 +19,55 @@ public class DataService
 {
 	public static void main(String[] args) throws ServiceStartUpException
 	{
-		DataService service = new DataService("data_service");
+		ServiceContext context = new ServiceContext();
+		//core service parameters
+		context.set(TaskServiceParam.ServiceName, "data_service");
+		context.set(TaskServiceParam.ProcessorPoolSize, 5);
+		context.set(TaskServiceParam.RedisConnPoolSize, 5);
+		context.set(TaskServiceParam.RedisHost, "172.16.43.90");
+		//data service parameters
+		context.set(DataServiceParam.QueryRequestPort, 9001);
+		context.set(DataServiceParam.UpdateRequestPort, 9002);
+		context.set(DataServiceParam.UpdatePublishPort, 9003);
+		context.set(DataServiceParam.QueryResponsePort, 9004);
+		context.set(DataServiceParam.UpdateResponsePort, 9005);
+		
+		DataService service = new DataService(context);
 		service.start();
 	}
 
 	BasicTaskService service;
 
-	public DataService(String serviceName) throws ServiceStartUpException
+	public DataService(ServiceContext serviceContext) throws ServiceStartUpException
 	{
-		int processorPoolSize = 5;
-		int redisConnPoolSize = 5;
-
 		// init data cache
-		String redisHost = "172.16.43.90";		
-		DataCache dataCache = new DataCache(redisConnPoolSize, redisHost, serviceName);
+		int redisConnPoolSize = serviceContext.get(TaskServiceParam.RedisConnPoolSize);
+		String redisHost = serviceContext.get(TaskServiceParam.RedisHost);
+		DataCache dataCache = new DataCache(redisConnPoolSize, redisHost);
 
 		// init receiver and processors
 		List<TaskHandler> handlers = new ArrayList<TaskHandler>();
 
 		// Add Query functionality
-		int queryClientPort = 9001;
-		int queryWorkerPort = 9002;
-		TaskReceiver queryReceiver = new TaskReceiver(serviceName, TaskType.QUERY, queryClientPort, queryWorkerPort);
-		QueryTaskProcessor queryProcessor = new QueryTaskProcessor(queryWorkerPort, dataCache);
+		int queryClientPort = serviceContext.get(DataServiceParam.QueryRequestPort);
+		int queryWorkerPort = serviceContext.get(DataServiceParam.QueryResponsePort);
+		TaskReceiver queryReceiver = new TaskReceiver(TaskType.QUERY, serviceContext, queryClientPort, queryWorkerPort);
+		QueryTaskProcessor queryProcessor = new QueryTaskProcessor(serviceContext, queryWorkerPort, dataCache);
 		TaskHandler queryHandler = new TaskHandler(TaskType.QUERY, queryReceiver, queryProcessor);
 
 		// Add Update functionality
-		int updateClientPort = 9003;
-		int updateWorkerPort = 9004;
-		TaskReceiver updateReceiver = new TaskReceiver(serviceName, TaskType.UPDATE, updateClientPort, updateWorkerPort);
+		int updateClientPort = serviceContext.get(DataServiceParam.UpdateRequestPort);
+		int updateWorkerPort = serviceContext.get(DataServiceParam.UpdateResponsePort);
+		TaskReceiver updateReceiver = new TaskReceiver(TaskType.UPDATE, serviceContext, updateClientPort, updateWorkerPort);
 		// init publisher
-		int publisherPort = 9005;
+		int publisherPort = serviceContext.get(DataServiceParam.UpdatePublishPort);
 		ZeroMqPublisher publisher = new ZeroMqPublisher(publisherPort);
-		UpdateTaskProcessor updateProcessor = new UpdateTaskProcessor(updateWorkerPort, dataCache, publisher);
+		UpdateTaskProcessor updateProcessor = new UpdateTaskProcessor(serviceContext, updateWorkerPort, dataCache, publisher);
 		TaskHandler updateHandler = new TaskHandler(TaskType.UPDATE, updateReceiver, updateProcessor);
 
 		handlers.add(queryHandler);
 		handlers.add(updateHandler);
-		this.service = new BasicTaskService(serviceName, handlers, processorPoolSize);
+		this.service = new BasicTaskService(serviceContext, handlers);
 	}
 
 	public void start()

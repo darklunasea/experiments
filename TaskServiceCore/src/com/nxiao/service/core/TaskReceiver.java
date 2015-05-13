@@ -23,12 +23,12 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 	Socket backend;
 	Poller items;
 
-	public TaskReceiver(String serviceName, TaskType taskType, int clientRequestPort, int workerResponsePort)
+	public TaskReceiver(TaskType taskType, ServiceContext serviceContext, int clientRequestPort, int workerResponsePort)
 			throws ServiceStartUpException
 	{
 		logger.info("Creating Receiver for [" + taskType.toString() + "]...");
 
-		this.serviceName = serviceName;
+		this.serviceName = serviceContext.get(TaskServiceParam.ServiceName);
 		this.taskType = taskType;
 
 		context = ZMQ.context(1);

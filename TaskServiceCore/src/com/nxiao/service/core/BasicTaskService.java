@@ -18,14 +18,14 @@ public class BasicTaskService extends Thread
 
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	public BasicTaskService(String serviceName, List<TaskHandler> taskHandlers,
-			int processorPoolSize) throws ServiceStartUpException
+	public BasicTaskService(ServiceContext serviceContext, List<TaskHandler> taskHandlers) throws ServiceStartUpException
 	{
+		this.serviceName = serviceContext.get(TaskServiceParam.ServiceName);
+		int processorPoolSize = serviceContext.get(TaskServiceParam.ProcessorPoolSize);
+		
 		validateInputs(serviceName, taskHandlers, processorPoolSize);
 
 		logger.info("Initializing Service [" + serviceName + "]...");
-
-		this.serviceName = serviceName;
 
 		// unpack receivers and processors from the handlers
 		receivers = new ArrayList<ITaskReceiver>();
