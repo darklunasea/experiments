@@ -15,7 +15,7 @@ public class DataCache
 		try
 		{
 			logger.info("Initializing Data Cache...");
-			redisEngine = new RedisEngine(redisHost, serviceName);
+			redisEngine = new RedisEngine(redisHost);
 			logger.info("Data Cache initialized.");
 		}
 		catch (Exception e)
@@ -29,19 +29,19 @@ public class DataCache
 		return redisEngine;
 	}
 
-	public String getDataByKey(String key)
+	public String getDataByKey(String schema, String key)
 	{
-		String data = getRedisEngine().getData(key);
+		String data = getRedisEngine().getData(schema, key);
 		return data;
 	}
 	
-	public void setDataByKey(String key, String data)
+	public void setDataByKey(String schema, String key, String data)
 	{
-		getRedisEngine().setData(key, data);
+		getRedisEngine().setData(schema, key, data);
 	}
 	
-	public boolean existKey(String key)
+	public boolean existKey(String schema, String key)
 	{
-		return getRedisEngine().exist(key);
+		return getRedisEngine().exist(schema, key);
 	}
 }

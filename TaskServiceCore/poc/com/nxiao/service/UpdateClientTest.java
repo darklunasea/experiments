@@ -11,7 +11,7 @@ public class UpdateClientTest
 
 		BasicZeroMqClient client = new BasicZeroMqClient(host, port, "test_update_client3");
 		
-		int testRound = 5000;
+		int testRound = 50;
 		for(int i = 0; i < testRound; i++)
 		{
 			for(int j = 0; j < 10; j++)
@@ -30,6 +30,7 @@ public class UpdateClientTest
 		JSONObject req = new JSONObject();
 		req.put("service", "data_service");
 		req.put("task", "update");
+		req.put("schema", "test");
 		req.put("key", key);
 		req.put("data", "test_" + key);
 

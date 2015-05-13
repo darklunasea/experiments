@@ -7,20 +7,18 @@ import redis.clients.jedis.JedisPoolConfig;
 public class RedisEngine implements IDataEngine
 {
 	String host;
-	String serviceKey;
 	JedisPool pool;
 
-	public RedisEngine(String host, String serviceKey)
+	public RedisEngine(String host)
 	{
 		this.host = host;
-		this.serviceKey = serviceKey;
 		pool = new JedisPool(new JedisPoolConfig(), host);
 		pool.getResource();
 	}
 
 	public IDataEngine newSession() throws Exception
 	{
-		return new RedisEngine(this.host, this.serviceKey);
+		return new RedisEngine(this.host);
 	}
 
 	public void close()
@@ -31,27 +29,27 @@ public class RedisEngine implements IDataEngine
 		}
 	}
 
-	public boolean exist(String key)
+	public boolean exist(String schema, String key)
 	{
 		try (Jedis jedis = pool.getResource())
 		{
-			return jedis.hexists(serviceKey, key);
+			return jedis.hexists(schema, key);
 		}
 	}
 
-	public void setData(String key, String data)
+	public void setData(String schema, String key, String data)
 	{
 		try (Jedis jedis = pool.getResource())
 		{
-			jedis.hset(serviceKey, key, data);
+			jedis.hset(schema, key, data);
 		}
 	}
 
-	public String getData(String key)
+	public String getData(String schema, String key)
 	{
 		try (Jedis jedis = pool.getResource())
 		{
-			return jedis.hget(serviceKey, key);
+			return jedis.hget(schema, key);
 		}
 	}
 

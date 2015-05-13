@@ -74,7 +74,18 @@ public class TaskManager extends Thread
 		// start dispatching tasks
 		while (!Thread.currentThread().isInterrupted())
 		{
-			while (!taskQueue.isEmpty())
+			if (taskQueue.isEmpty())
+			{
+				try
+				{
+					sleep(10);
+				}
+				catch (InterruptedException e)
+				{
+					logger.error("Error waiting for new task. Reason: " + e.getMessage(), e);;
+				}
+			}
+			else
 			{
 				try
 				{
@@ -118,16 +129,16 @@ public class TaskManager extends Thread
 		return processorBucketMap.size();
 	}
 
-	private int getBucketIndex(String cusip) throws ServiceProcessException
+	private int getBucketIndex(String key) throws ServiceProcessException
 	{
 		try
 		{
-			int bucketIndex = Math.abs(cusip.hashCode()) % getNumOfProcessors();
+			int bucketIndex = Math.abs(key.hashCode()) % getNumOfProcessors();
 			return bucketIndex;
 		}
 		catch (Exception e)
 		{
-			throw new ServiceProcessException("Unable to get bucket index. Cusip: " + cusip + ", number of buckets: "
+			throw new ServiceProcessException("Unable to get bucket index. Key: " + key + ", number of buckets: "
 					+ getNumOfProcessors());
 		}
 	}

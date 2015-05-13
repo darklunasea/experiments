@@ -11,7 +11,7 @@ public class QueryClientTest
 
 		BasicZeroMqClient client = new BasicZeroMqClient(host, port, "test_query_client1");
 		
-		int testRound = 5000;
+		int testRound = 50;
 		for(int i = 0; i < testRound; i++)
 		{
 			for(int j = 0; j < 20; j++)
@@ -30,6 +30,7 @@ public class QueryClientTest
 		JSONObject req = new JSONObject();
 		req.put("service", "data_service");
 		req.put("task", "query");
+		req.put("schema", "test");
 		req.put("key", key);		
 
 		// send request

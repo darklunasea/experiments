@@ -17,16 +17,14 @@ public class DataService
 {
 	public static void main(String[] args) throws ServiceStartUpException
 	{
-		DataService service = new DataService();
+		DataService service = new DataService("data_service");
 		service.start();
 	}
 
 	BasicTaskService service;
 
-	public DataService() throws ServiceStartUpException
+	public DataService(String serviceName) throws ServiceStartUpException
 	{
-		String serviceName = "test_service";
-
 		int processorPoolSize = 5;
 		int redisConnPoolSize = 5;
 

@@ -76,8 +76,8 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 
 				String requestId = new String(id);
 				String request = new String(msg);
-				logger.info("Request received from client: " + requestId + ", request: " + request);
-
+				logger.info("Received from client [" + requestId + "], request: " + request);
+				
 				onReceiveRequest(requestId, request);
 			}
 			if (items.pollin(1))
@@ -88,7 +88,7 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 				backend.recv(0);
 				byte[] msg = backend.recv(0);
 
-				logger.info("Response received from worker for client: " + new String(callbackId) + ", "
+				logger.info("Response to client [" + new String(callbackId) + "], response: "
 						+ new String(msg));
 
 				frontend.send(callbackId, ZMQ.SNDMORE);
@@ -105,6 +105,10 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 		try
 		{
 			req = (JSONObject) JSONValue.parse(request);
+			if(req == null)
+			{
+				error = "Invalid request. Malformat in Json.";
+			}
 		}
 		catch (Exception e)
 		{
@@ -153,7 +157,7 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 		String key = (String) req.get("key");
 		if (key == null || key.isEmpty())
 		{
-			throw new ServiceProcessException("Invalid request. No Keyword found in the request.");
+			throw new ServiceProcessException("Invalid request. Cannot find 'key' in request.");
 		}
 		return key;
 	}
@@ -163,7 +167,7 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 		String validationError = null;
 		if (!request.containsKey("service"))
 		{
-			validationError = "Invalid request. No service specified in request.";
+			validationError = "Invalid request. No 'service' specified in request.";
 			return validationError;
 		}
 		else
@@ -171,16 +175,16 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 			String requestedService = (String) request.get("service");
 			if (!serviceName.equalsIgnoreCase(requestedService))
 			{
-				validationError = "Requested service mismatch. This service is: " + serviceName
-						+ ". Requested service is: "
-						+ requestedService;
+				validationError = "Invalid request. This service [" + serviceName
+						+ "], requested service ["
+						+ requestedService + "]";
 				return validationError;
 			}
 		}
 
 		if (!request.containsKey("task"))
 		{
-			validationError = "Invalid request. No task specified in request.";
+			validationError = "Invalid request. No 'task' specified in request.";
 			return validationError;
 		}
 		else
@@ -189,9 +193,9 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 			if (!taskType.toString().equalsIgnoreCase(requestedTask))
 			{
 				// requested task is not a QUERY task
-				validationError = "Requested Task mismatch. This task is: " + taskType.toString()
-						+ ". Requested task is: "
-						+ requestedTask;
+				validationError = "Invalid request. This task [" + taskType.toString()
+						+ "], requested task ["
+						+ requestedTask + "]";
 				return validationError;
 			}
 		}
