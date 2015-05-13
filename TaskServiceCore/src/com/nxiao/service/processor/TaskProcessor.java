@@ -48,7 +48,7 @@ public abstract class TaskProcessor implements ITaskProcessor
 		}
 
 		String validationError = validate(request);
-		if (validationError == null || validationError.length() == 0)
+		if (validationError == null || validationError.isEmpty())
 		{
 			TaskResponse response = process(request);
 			sendResponseToClient(callbackId, response);

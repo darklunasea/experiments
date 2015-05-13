@@ -15,6 +15,7 @@ public class RedisEngine implements IDataEngine
 		this.host = host;
 		this.serviceKey = serviceKey;
 		pool = new JedisPool(new JedisPoolConfig(), host);
+		pool.getResource();
 	}
 
 	public IDataEngine newSession() throws Exception

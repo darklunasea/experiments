@@ -63,7 +63,7 @@ public class TaskProcessorFactory extends Thread
 			{
 				try
 				{
-					sleep(100);
+					sleep(10);
 				}
 				catch (InterruptedException e)
 				{

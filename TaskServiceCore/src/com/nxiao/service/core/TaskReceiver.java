@@ -110,19 +110,19 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 		{
 			error = "Invalid request. Malformat in Json. Reason: " + e.getMessage();
 			logger.error(error, e);
-			sendErrorBackToClient(error);
+			sendErrorBackToClient(requestId, error);
 			return;
 		}
 
 		try
 		{
 			//validate request
-			String validationError = null;
-			if(!validateRequest(req, validationError))
+			String validationError = validateRequest(req);
+			if(validationError != null && !validationError.isEmpty())
 			{
 				//invalid request. notify client.
 				logger.error(validationError);
-				sendErrorBackToClient(validationError);
+				sendErrorBackToClient(requestId, validationError);
 				return;
 			}
 			
@@ -135,14 +135,16 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 		{
 			error = "Failed to add task. Reason: " + e.getMessage();
 			logger.error(error, e);
-			sendErrorBackToClient(error);
+			sendErrorBackToClient(requestId, error);
 			return;
 		}
 	}
 
-	private void sendErrorBackToClient(String error)
+	private void sendErrorBackToClient(String requestId, String error)
 	{
 		TaskResponse resp = new TaskResponse(error);
+		frontend.send(requestId, ZMQ.SNDMORE);
+		frontend.sendMore("");
 		frontend.send(resp.getStringResponse());
 	}
 
@@ -156,28 +158,30 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 		return key;
 	}
 
-	protected boolean validateRequest(JSONObject request, String validationError) throws ServiceProcessException
+	protected String validateRequest(JSONObject request) throws ServiceProcessException
 	{
+		String validationError = null;
 		if (!request.containsKey("service"))
 		{
 			validationError = "Invalid request. No service specified in request.";
+			return validationError;
 		}
 		else
 		{
 			String requestedService = (String) request.get("service");
 			if (!serviceName.equalsIgnoreCase(requestedService))
 			{
-				validationError = "Requested service mismatch. This service is: + " + serviceName
+				validationError = "Requested service mismatch. This service is: " + serviceName
 						+ ". Requested service is: "
 						+ requestedService;
-				return false;
+				return validationError;
 			}
 		}
 
 		if (!request.containsKey("task"))
 		{
 			validationError = "Invalid request. No task specified in request.";
-			return false;
+			return validationError;
 		}
 		else
 		{
@@ -185,12 +189,12 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 			if (!taskType.toString().equalsIgnoreCase(requestedTask))
 			{
 				// requested task is not a QUERY task
-				validationError = "Requested Task mismatch. This task is: + " + taskType.toString()
+				validationError = "Requested Task mismatch. This task is: " + taskType.toString()
 						+ ". Requested task is: "
 						+ requestedTask;
-				return false;
+				return validationError;
 			}
 		}
-		return true;
+		return validationError;
 	}
 }

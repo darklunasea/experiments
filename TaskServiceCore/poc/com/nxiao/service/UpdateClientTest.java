@@ -7,9 +7,9 @@ public class UpdateClientTest
 	public static void main(String[] args) throws Exception
 	{
 		String host = "localhost";
-		Integer port = 9001;
+		Integer port = 9003;
 
-		BasicZeroMqClient client = new BasicZeroMqClient(host, port, "test_query_client3");
+		BasicZeroMqClient client = new BasicZeroMqClient(host, port, "test_update_client3");
 		
 		int testRound = 5000;
 		for(int i = 0; i < testRound; i++)
@@ -28,7 +28,10 @@ public class UpdateClientTest
 	{
 		// construct request
 		JSONObject req = new JSONObject();
+		req.put("service", "data_service");
+		req.put("task", "update");
 		req.put("key", key);
+		req.put("data", "test_" + key);
 
 		// send request
 		System.out.println("Sending request: " + req.toString());
