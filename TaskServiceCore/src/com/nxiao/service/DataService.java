@@ -23,9 +23,9 @@ public class DataService
 		//core service parameters
 		context.set(TaskServiceParam.ServiceName, "data_service");
 		context.set(TaskServiceParam.ProcessorPoolSize, 5);
-		context.set(TaskServiceParam.RedisConnPoolSize, 5);
-		context.set(TaskServiceParam.RedisHost, "172.16.43.90");
 		//data service parameters
+		context.set(DataServiceParam.RedisConnPoolSize, 5);
+		context.set(DataServiceParam.RedisHost, "172.16.43.90");
 		context.set(DataServiceParam.QueryRequestPort, 9001);
 		context.set(DataServiceParam.UpdateRequestPort, 9002);
 		context.set(DataServiceParam.UpdatePublishPort, 9003);
@@ -39,10 +39,16 @@ public class DataService
 	BasicTaskService service;
 
 	public DataService(ServiceContext serviceContext) throws ServiceStartUpException
-	{
+	{		
+		String validationErr = serviceContext.validate(DataServiceParam.class);
+		if(!validationErr.isEmpty())
+		{
+			throw new ServiceStartUpException(validationErr);
+		}
+		
 		// init data cache
-		int redisConnPoolSize = serviceContext.get(TaskServiceParam.RedisConnPoolSize);
-		String redisHost = serviceContext.get(TaskServiceParam.RedisHost);
+		int redisConnPoolSize = serviceContext.get(DataServiceParam.RedisConnPoolSize);
+		String redisHost = serviceContext.get(DataServiceParam.RedisHost);
 		DataCache dataCache = new DataCache(redisConnPoolSize, redisHost);
 
 		// init receiver and processors

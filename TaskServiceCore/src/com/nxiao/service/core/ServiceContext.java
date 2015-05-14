@@ -21,4 +21,16 @@ public class ServiceContext
 	{
 		return (T)contextMap.get(parameter);
 	}
+	
+	public <T> String validate(Class<T> paramClass)
+	{
+		for(T param : paramClass.getEnumConstants())
+		{
+			if(!contextMap.containsKey(param))
+			{
+				return "Missing param [" + param + "] in context";
+			}
+		}
+		return "";
+	}
 }

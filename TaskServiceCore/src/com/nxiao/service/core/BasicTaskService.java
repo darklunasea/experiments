@@ -20,6 +20,13 @@ public class BasicTaskService extends Thread
 
 	public BasicTaskService(ServiceContext serviceContext, List<TaskHandler> taskHandlers) throws ServiceStartUpException
 	{
+		//validate context
+		String validationErr = serviceContext.validate(TaskServiceParam.class);
+		if(!validationErr.isEmpty())
+		{
+			throw new ServiceStartUpException(validationErr);
+		}
+		
 		this.serviceName = serviceContext.get(TaskServiceParam.ServiceName);
 		int processorPoolSize = serviceContext.get(TaskServiceParam.ProcessorPoolSize);
 		

@@ -4,6 +4,4 @@ public enum TaskServiceParam implements IServiceParam
 {
 	ServiceName,
 	ProcessorPoolSize,
-	RedisConnPoolSize,
-	RedisHost,
 }
