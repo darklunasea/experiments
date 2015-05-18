@@ -30,7 +30,7 @@ public class UpdateClientTest
 		JSONObject req = new JSONObject();
 		req.put("service", "data_service");
 		req.put("task", "update");
-		req.put("schema", "test");
+		req.put("table", "test");
 		req.put("key", key);
 		req.put("data", "test_" + key);
 

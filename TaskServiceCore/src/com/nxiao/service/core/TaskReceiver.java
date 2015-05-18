@@ -157,7 +157,7 @@ public class TaskReceiver extends Thread implements ITaskReceiver
 		String key = (String) req.get("key");
 		if (key == null || key.isEmpty())
 		{
-			throw new ServiceProcessException("Invalid request. Cannot find 'key' in request.");
+			key = String.valueOf(Math.random() * 100);
 		}
 		return key;
 	}

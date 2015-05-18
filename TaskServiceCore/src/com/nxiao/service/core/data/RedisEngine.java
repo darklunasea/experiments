@@ -6,6 +6,8 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisEngine implements IDataEngine
 {
+	static final String ID_KEY = "$id";
+	
 	String host;
 	JedisPool pool;
 
@@ -29,27 +31,27 @@ public class RedisEngine implements IDataEngine
 		}
 	}
 
-	public boolean exist(String schema, String key)
+	public boolean existInTable(String table, String key)
 	{
 		try (Jedis jedis = pool.getResource())
 		{
-			return jedis.hexists(schema, key);
+			return jedis.hexists(table, key);
 		}
 	}
 
-	public void setData(String schema, String key, String data)
+	public void setDataInTable(String table, String key, String data)
 	{
 		try (Jedis jedis = pool.getResource())
 		{
-			jedis.hset(schema, key, data);
+			jedis.hset(table, key, data);
 		}
 	}
 
-	public String getData(String schema, String key)
+	public String getDataInTable(String table, String key)
 	{
 		try (Jedis jedis = pool.getResource())
 		{
-			return jedis.hget(schema, key);
+			return jedis.hget(table, key);
 		}
 	}
 
@@ -58,6 +60,22 @@ public class RedisEngine implements IDataEngine
 		try (Jedis jedis = pool.getResource())
 		{
 			jedis.publish(channel, message);
+		}
+	}
+	
+	public Long getNextIdInTable(String table)
+	{
+		try (Jedis jedis = pool.getResource())
+		{
+			return jedis.hincrBy(table, ID_KEY, 1);
+		}
+	}
+	
+	public Long getNextId(String key)
+	{
+		try (Jedis jedis = pool.getResource())
+		{
+			return jedis.incr(key);
 		}
 	}
 }

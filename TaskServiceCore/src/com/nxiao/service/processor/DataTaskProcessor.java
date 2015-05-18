@@ -10,7 +10,7 @@ import com.nxiao.service.core.exception.ServiceStartUpException;
 
 public abstract class DataTaskProcessor extends TaskProcessor implements ITaskProcessor
 {
-	DataCache dataCache;
+	protected DataCache dataCache;
 
 	public DataTaskProcessor(ServiceContext serviceContext, int workerPort, DataCache dataCache)
 	{
@@ -19,19 +19,4 @@ public abstract class DataTaskProcessor extends TaskProcessor implements ITaskPr
 	}
 	public abstract ITaskProcessor newSession() throws ServiceStartUpException;
 	protected abstract TaskResponse process(JSONObject request) throws ServiceProcessException;
-
-	@Override
-	protected String validate(JSONObject request) throws ServiceProcessException
-	{
-		String validationError = "";
-		if (!request.containsKey("schema"))
-		{
-			validationError = validationError + "Cannot find 'schema' in request.";
-		}
-		if (!request.containsKey("key"))
-		{
-			validationError = validationError + "Cannot find 'key' in request.";
-		}
-		return validationError;
-	}	
 }

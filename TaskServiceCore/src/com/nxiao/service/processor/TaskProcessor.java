@@ -16,14 +16,16 @@ public abstract class TaskProcessor implements ITaskProcessor
 {
 	private Logger logger = Logger.getLogger(this.getClass());
 	
-	ServiceContext serviceContext;
-	int workerPort;
+	protected ServiceContext serviceContext;
+	protected int workerPort;
+	protected Validator validator;
 	Socket responder;
 
 	public TaskProcessor(ServiceContext serviceContext, int workerPort)
 	{
 		this.serviceContext = serviceContext;
 		this.workerPort = workerPort;
+		this.validator = new Validator();
 
 		// init response callback connection
 		Context context = ZMQ.context(1);
@@ -50,7 +52,7 @@ public abstract class TaskProcessor implements ITaskProcessor
 			return;
 		}
 
-		String validationError = validate(request);
+		String validationError = validate(request).toString();
 		if (validationError == null || validationError.isEmpty())
 		{
 			TaskResponse response = process(request);
@@ -65,7 +67,10 @@ public abstract class TaskProcessor implements ITaskProcessor
 		}
 	}
 
-	abstract protected String validate(JSONObject request) throws ServiceProcessException;
+	protected String validate(JSONObject request) throws ServiceProcessException
+	{
+		return validator.validate(request);
+	}
 
 	abstract protected TaskResponse process(JSONObject request) throws ServiceProcessException;
 

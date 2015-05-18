@@ -16,6 +16,7 @@ public class QueryTaskProcessor extends DataTaskProcessor implements ITaskProces
 	public QueryTaskProcessor(ServiceContext serviceContext, int queryWorkerPort, DataCache dataCache)
 	{
 		super(serviceContext, queryWorkerPort, dataCache);
+		this.validator.addValidateFields("table", "key");
 		logger.info("Query Task Processor created.");
 	}
 
@@ -24,34 +25,29 @@ public class QueryTaskProcessor extends DataTaskProcessor implements ITaskProces
 		return new QueryTaskProcessor(this.serviceContext, this.workerPort, this.dataCache);
 	}
 
-	protected String validate(JSONObject request) throws ServiceProcessException
-	{
-		return super.validate(request);
-	}
-
 	public TaskResponse process(JSONObject request) throws ServiceProcessException
 	{
 		String error = "";
-		String schema = (String) request.get("schema");
+		String table = (String) request.get("table");
 		String key = (String) request.get("key");
 
 		// retrieve data
 		String data = "";
 		try
 		{
-			if (dataCache.existKey(schema, key))
+			if (dataCache.existKeyInTable(table, key))
 			{
-				data = dataCache.getDataByKey(schema, key);
+				data = dataCache.getDataByKeyInTable(table, key);
 			}
 			else
 			{
-				error = "Requested key [" + key + "] doesn't exist in schema [" + schema + "]";
+				error = "Requested key [" + key + "] doesn't exist in table [" + table + "]";
 				logger.info(error);
 			}
 		}
 		catch (Exception e)
 		{
-			error = "Failed to get data from schema [" + schema + "] by key [" + key + "]. Reason- " + e.getMessage();
+			error = "Failed to get data from table [" + table + "] by key [" + key + "]. Reason- " + e.getMessage();
 			logger.error(error, e);
 		}
 

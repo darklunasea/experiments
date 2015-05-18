@@ -29,19 +29,24 @@ public class DataCache
 		return redisEngine;
 	}
 
-	public String getDataByKey(String schema, String key)
+	public String getDataByKeyInTable(String table, String key)
 	{
-		String data = getRedisEngine().getData(schema, key);
+		String data = getRedisEngine().getDataInTable(table, key);
 		return data;
 	}
 	
-	public void setDataByKey(String schema, String key, String data)
+	public void setDataByKeyInTable(String table, String key, String data)
 	{
-		getRedisEngine().setData(schema, key, data);
+		getRedisEngine().setDataInTable(table, key, data);
 	}
 	
-	public boolean existKey(String schema, String key)
+	public boolean existKeyInTable(String table, String key)
 	{
-		return getRedisEngine().exist(schema, key);
+		return getRedisEngine().existInTable(table, key);
+	}
+	
+	public String getNewIdInTable(String table)
+	{
+		return String.valueOf(getRedisEngine().getNextIdInTable(table));
 	}
 }

@@ -26,6 +26,7 @@ public class UpdateTaskProcessor extends DataTaskProcessor implements
 		String serviceName = serviceContext.get(TaskServiceParam.ServiceName);
 		this.publishTopicPrefix = serviceName + ".";
 		this.publisher = publisher;
+		this.validator.addValidateFields("table", "data");
 		logger.info("Update Task Processor created.");
 	}
 
@@ -35,23 +36,11 @@ public class UpdateTaskProcessor extends DataTaskProcessor implements
 				this.dataCache, this.publisher);
 	}
 
-	protected String validate(JSONObject request)
-			throws ServiceProcessException
-	{
-		String validationError = super.validate(request);
-		if (!request.containsKey("data"))
-		{
-			validationError = validationError
-					+ "Cannot find update 'data' in request.";
-		}
-		return validationError;
-	}
-
 	protected TaskResponse process(JSONObject request)
 			throws ServiceProcessException
 	{
 		String error = "";
-		String schema = (String) request.get("schema");
+		String table = (String) request.get("table");
 		String key = (String) request.get("key");
 		String newData = (String) request.get("data");
 
@@ -62,26 +51,43 @@ public class UpdateTaskProcessor extends DataTaskProcessor implements
 			{
 				error = "Update data is empty.";
 			}
-			String oldData = dataCache.getDataByKey(schema, key);
-			if(!newData.equals(oldData))
+
+			if (key == null || key.isEmpty())
 			{
-				dataCache.setDataByKey(schema, key, newData);
-				publishUpdate(schema, key, newData);
-			}			
+				// new
+				key = dataCache.getNewIdInTable(table);
+				logger.info("New key [" + key + "] generated for data [" + newData + "]");
+				setDataAndPublish(table, key, newData);
+			}
+			else
+			{
+				// update
+				String oldData = dataCache.getDataByKeyInTable(table, key);
+				if (!newData.equals(oldData))
+				{
+					setDataAndPublish(table, key, newData);
+				}
+			}
 		}
 		catch (Exception e)
 		{
-			error = "Failed to update data for key [" + key + "] in schema ["
-					+ schema + "]. Reason- " + e.getMessage();
+			error = "Failed to update data for key [" + key + "] in table ["
+					+ table + "]. Reason- " + e.getMessage();
 			logger.error(error, e);
 		}
 
 		return new TaskResponse(key, "", error);
 	}
 
-	protected void publishUpdate(String schema, String key, String data)
+	private void setDataAndPublish(String table, String key, String newData)
 	{
-		String topic = publishTopicPrefix + schema;
+		dataCache.setDataByKeyInTable(table, key, newData);
+		publishUpdate(table, key, newData);
+	}
+
+	protected void publishUpdate(String table, String key, String data)
+	{
+		String topic = publishTopicPrefix + table;
 		String message = new TaskResponse(key, data).getStringResponse();
 		try
 		{

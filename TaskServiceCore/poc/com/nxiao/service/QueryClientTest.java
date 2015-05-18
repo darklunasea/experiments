@@ -30,7 +30,7 @@ public class QueryClientTest
 		JSONObject req = new JSONObject();
 		req.put("service", "data_service");
 		req.put("task", "query");
-		req.put("schema", "test");
+		req.put("table", "test");
 		req.put("key", key);		
 
 		// send request

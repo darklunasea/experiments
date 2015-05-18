@@ -23,14 +23,14 @@ public class DataService
 		//core service parameters
 		context.set(TaskServiceParam.ServiceName, "data_service");
 		context.set(TaskServiceParam.ProcessorPoolSize, 5);
-		//data service parameters
-		context.set(DataServiceParam.RedisConnPoolSize, 5);
+		//data service parameters		
 		context.set(DataServiceParam.RedisHost, "172.16.43.90");
 		context.set(DataServiceParam.QueryRequestPort, 9001);
 		context.set(DataServiceParam.UpdateRequestPort, 9002);
 		context.set(DataServiceParam.UpdatePublishPort, 9003);
 		context.set(DataServiceParam.QueryResponsePort, 9004);
 		context.set(DataServiceParam.UpdateResponsePort, 9005);
+		context.set(DataServiceParam.RedisConnPoolSize, 5);
 		
 		DataService service = new DataService(context);
 		service.start();
