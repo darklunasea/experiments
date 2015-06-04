@@ -1,0 +1,16 @@
+apply plugin: 'java'
+
+apply plugin: "eclipse"
+
+repositories 
+{
+    mavenCentral()
+}
+
+dependencies 
+{
+    compile 'log4j:log4j:1.2.17'
+    compile 'com.sparkjava:spark-core:2.0.0'
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'org.mongodb:mongo-java-driver:2.11.3'
+}
