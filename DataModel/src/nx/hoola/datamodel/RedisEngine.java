@@ -85,6 +85,14 @@ class RedisEngine
 		}
 	}
 	
+	public boolean setBitOnKey(String key, long offset, boolean value)
+	{
+		try (Jedis jedis = pool.getResource())
+		{
+			return jedis.setbit(key, offset, value);
+		}
+	}
+	
 	public void increaseMemberScoreOnSortedSet(String key, String member, Double score)
 	{
 		try (Jedis jedis = pool.getResource())

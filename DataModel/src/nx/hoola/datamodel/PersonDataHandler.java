@@ -20,15 +20,6 @@ public class PersonDataHandler extends BasicData
 
 	/**
 	 * @param personId
-	 * @return if person exists
-	 */
-	public boolean exist(String personId)
-	{
-		return personExist(personId);
-	}
-
-	/**
-	 * @param personId
 	 * @param friendId
 	 * @return are the two persons friends
 	 */
@@ -44,7 +35,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void addFriend(String personId, String friendId)
 	{
-		if (personExist(friendId))
+		if (isPersonExist(friendId))
 		{
 			String friendList = KeySchema.PersonFriends.getKey(personId);
 			redis().addMemberOnSet(friendList, friendId);
