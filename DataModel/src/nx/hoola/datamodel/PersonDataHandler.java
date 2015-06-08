@@ -2,6 +2,8 @@ package nx.hoola.datamodel;
 
 import java.util.List;
 
+import redis.clients.jedis.Tuple;
+
 public class PersonDataHandler extends BasicData
 {
 	public PersonDataHandler(RedisEngine redis)
@@ -12,7 +14,7 @@ public class PersonDataHandler extends BasicData
 	/**
 	 * @param personId
 	 */
-	public void addToPersonsList(String personId)
+	public void addToAllPersonsList(String personId)
 	{
 		String allPersonsList = KeySchema.AllPersonsList.getKey(null);
 		redis().addMemberOnSet(allPersonsList, personId);
@@ -126,11 +128,10 @@ public class PersonDataHandler extends BasicData
 	 * @param personId
 	 * @param eventId
 	 */
-	public void invitedToEvent(String personId, String eventId)
+	public void invitedToEvent(String personId, String eventId, Double score)
 	{
-		String inviteEventList = KeySchema.PersonInvitedToEvents.getKey(personId);
-		//TODO once event get all tags is ready. calculate score by sum(tag_on_event * personal_tag_score)
-		//redis().increaseMemberScoreOnSortedSet(inviteEventList, eventId, score);
+		String inviteEventList = KeySchema.PersonInvitedToEvents.getKey(personId);		
+		redis().increaseMemberScoreOnSortedSet(inviteEventList, eventId, score);
 	}
 	
 	/**
@@ -147,10 +148,11 @@ public class PersonDataHandler extends BasicData
 	 * @param personId
 	 * @return all (active) events the person is invited to
 	 */
-	public List<String> getAllInvitedToEvents(String personId)
+	public List<Tuple> getAllInvitedToEvents(String personId)
 	{
 		String inviteEventList = KeySchema.PersonInvitedToEvents.getKey(personId);
-		return redis().getAllMembersOnSet(inviteEventList);
+		List<Tuple> list = redis().getAllMembersOnSortedSet(inviteEventList);
+		return list;
 	}
 	
 	/**
@@ -206,12 +208,22 @@ public class PersonDataHandler extends BasicData
 	
 	/**
 	 * @param personId
+	 * @return
+	 */
+	public List<Tuple> getAllInterests(String personId)
+	{
+		String interestGrid = KeySchema.PersonInterestGrid.getKey(personId);
+		return redis().getAllMembersOnSortedSet(interestGrid);
+	}
+	
+	/**
+	 * @param personId
 	 * @param incrRepScore
 	 */
 	public void increaseReputationScore(String personId, long incrRepScore)
 	{
 		String reputationScore = KeySchema.PersonReputation.getKey(personId);
-		redis().increaseKeyValue(reputationScore, incrRepScore);
+		redis().increaseKeyLongValue(reputationScore, incrRepScore);
 	}
 	
 	/**

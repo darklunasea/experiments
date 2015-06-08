@@ -7,6 +7,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
+import redis.clients.jedis.Tuple;
 
 class RedisEngine
 {	
@@ -101,6 +102,14 @@ class RedisEngine
 		}
 	}
 	
+	public void decreaseMemberScoreOnSortedSet(String key, String member, Double score)
+	{
+		try (Jedis jedis = pool.getResource())
+		{
+			jedis.zincrby(key, (score * -1), member);
+		}
+	}
+	
 	public void removeMembersOnSortedSet(String key, String... members)
 	{
 		try (Jedis jedis = pool.getResource())
@@ -109,11 +118,44 @@ class RedisEngine
 		}
 	}
 	
-	public void increaseKeyValue(String key, long incrBy)
+	public List<Tuple> getAllMembersOnSortedSet(String key)
+	{
+		try (Jedis jedis = pool.getResource())
+		{
+			ScanResult<Tuple> result = jedis.zscan(key, ScanParams.SCAN_POINTER_START);
+			return result.getResult();
+		}
+	}
+	
+	public void increaseKeyLongValue(String key, long incrBy)
 	{
 		try (Jedis jedis = pool.getResource())
 		{
 			jedis.incrBy(key, incrBy);
+		}
+	}
+	
+	public void decreaseKeyLongValue(String key, long decrBy)
+	{
+		try (Jedis jedis = pool.getResource())
+		{
+			jedis.decrBy(key, decrBy);
+		}
+	}
+	
+	public Long getKeyLongValue(String key)
+	{
+		try (Jedis jedis = pool.getResource())
+		{
+			return Long.valueOf(jedis.get(key));
+		}
+	}
+	
+	public String getKeyValue(String key)
+	{
+		try (Jedis jedis = pool.getResource())
+		{
+			return jedis.get(key);
 		}
 	}
 }

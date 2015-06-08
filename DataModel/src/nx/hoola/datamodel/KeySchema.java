@@ -113,7 +113,7 @@ enum KeySchema
 	/**
 	 * All events that expired on the time. Set of event_id.
 	 */
-	TimeOfExpireEvents("t:<id>:$e-exp-@e", Type.ReqID),
+	TimeOfExpireEvents("t:<id>:$e-exp", Type.ReqID),
 	/**
 	 * All active public events listed on the time. Set of event_id.
 	 */
