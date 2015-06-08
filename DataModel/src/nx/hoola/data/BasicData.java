@@ -1,4 +1,4 @@
-package nx.hoola.datamodel;
+package nx.hoola.data;
 
 class BasicData
 {

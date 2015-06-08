@@ -1,4 +1,4 @@
-package nx.hoola.datamodel;
+package nx.hoola.data;
 
 import java.util.List;
 

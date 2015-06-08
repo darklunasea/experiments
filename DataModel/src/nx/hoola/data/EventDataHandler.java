@@ -1,4 +1,4 @@
-package nx.hoola.datamodel;
+package nx.hoola.data;
 
 import java.util.List;
 
@@ -7,6 +7,15 @@ public class EventDataHandler extends BasicData
 	public EventDataHandler(RedisEngine redis)
 	{
 		super(redis);
+	}
+	
+	/**
+	 * @return
+	 */
+	public Long getNewEventId()
+	{
+		String idCounter = KeySchema.EventIdCounter.getKey(null);
+		return redis().getNextIdByKey(idCounter);
 	}
 	
 	/**

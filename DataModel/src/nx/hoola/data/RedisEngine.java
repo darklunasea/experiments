@@ -1,4 +1,4 @@
-package nx.hoola.datamodel;
+package nx.hoola.data;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.Tuple;
 
-class RedisEngine
+public class RedisEngine
 {	
 	String host;
 	JedisPool pool;
@@ -156,6 +156,14 @@ class RedisEngine
 		try (Jedis jedis = pool.getResource())
 		{
 			return jedis.get(key);
+		}
+	}
+	
+	public Long getNextIdByKey(String key)
+	{
+		try (Jedis jedis = pool.getResource())
+		{
+			return jedis.incr(key);
 		}
 	}
 }

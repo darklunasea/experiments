@@ -1,4 +1,4 @@
-package nx.hoola.datamodel;
+package nx.hoola.data;
 
 enum KeySchema
 {
@@ -10,7 +10,7 @@ enum KeySchema
 	IsActiveEventOffset("0", Type.NoID),
 	IsPublicEventOffset("1", Type.NoID),
 
-	// ========== Person ==========
+	// ========== Person ==========	
 	/**
 	 * All persons. Set of person_id.
 	 */
@@ -56,6 +56,10 @@ enum KeySchema
 	PersonRecommendationEvents("p:<id>:$e-recm-@e", Type.ReqID),
 
 	// ========== Event ==========
+	/**
+	 * Event ID Counter.
+	 */
+	EventIdCounter("e:$id", Type.NoID),
 	/**
 	 * All active public events. Set of event_id.
 	 */
