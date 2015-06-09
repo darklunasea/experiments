@@ -20,7 +20,7 @@ enum KeySchema
 	 */
 	PersonLocations("p:<id>:$p-loc", Type.ReqID),
 	/**
-	 * Person's friends. Set of person_id.
+	 * Person's friends. Sorted Set of person_id.
 	 */
 	PersonFriends("p:<id>:$p-lnk", Type.ReqID),
 	/**
