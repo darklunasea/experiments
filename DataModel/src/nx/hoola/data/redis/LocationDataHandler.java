@@ -1,4 +1,4 @@
-package nx.hoola.data;
+package nx.hoola.data.redis;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class LocationDataHandler extends BasicData
 		String locationsList = KeySchema.AllLocations.getKey(null);
 		return redis().isMemberOnSet(locationsList, locationId);
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -36,27 +36,28 @@ public class LocationDataHandler extends BasicData
 		String locationsList = KeySchema.AllLocations.getKey(null);
 		return redis().getAllMembersOnSet(locationsList);
 	}
-
+	
 	/**
 	 * @param locationId
 	 * @param eventId
+	 * @param isPublic
 	 */
-	public void addEventToLocation(String locationId, String eventId)
+	public void addPublicEventToLocation(String locationId, String eventId, boolean isPublic)
 	{
-		if (isEventPublic(eventId))
+		if (isPublic)
 		{
-			String eventsByLocation = KeySchema.LocationOfActivePublicEvents.getKey(locationId);
+			String eventsByLocation = KeySchema.LocationOfActiveEvents.getKey(locationId);
 			redis().addMemberOnSet(eventsByLocation, eventId);
 		}
 	}
-	
+
 	/**
 	 * @param locationId
 	 * @return
 	 */
-	public List<String> getAllEventsByLocation(String locationId)
+	public List<String> getAllPublicEventsByLocation(String locationId)
 	{
-		String eventsByLocation = KeySchema.LocationOfActivePublicEvents.getKey(locationId);
+		String eventsByLocation = KeySchema.LocationOfActiveEvents.getKey(locationId);
 		return redis().getAllMembersOnSet(eventsByLocation);
 	}
 }

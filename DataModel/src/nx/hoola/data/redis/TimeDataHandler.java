@@ -1,4 +1,4 @@
-package nx.hoola.data;
+package nx.hoola.data.redis;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ public class TimeDataHandler extends BasicData
 	{
 		super(redis);
 	}
-	
+
 	/**
 	 * @param date
 	 * @param eventId
@@ -18,7 +18,7 @@ public class TimeDataHandler extends BasicData
 		String expEventList = KeySchema.TimeOfExpireEvents.getKey(date);
 		redis().addMemberOnSet(expEventList, eventId);
 	}
-	
+
 	/**
 	 * @param date
 	 * @return
@@ -28,20 +28,20 @@ public class TimeDataHandler extends BasicData
 		String expEventList = KeySchema.TimeOfExpireEvents.getKey(date);
 		return redis().getAllMembersOnSet(expEventList);
 	}
-	
+
 	/**
 	 * @param date
 	 * @param eventId
 	 */
-	public void addPublicEventToDate(String date, String eventId)
+	public void addPublicEventToDate(String date, String eventId, boolean isPublic)
 	{
-		if(isEventPublic(eventId))
+		if (isPublic)
 		{
 			String pubEventList = KeySchema.TimeOfActivePublicEvents.getKey(date);
 			redis().addMemberOnSet(pubEventList, eventId);
 		}
 	}
-	
+
 	/**
 	 * @param date
 	 * @return

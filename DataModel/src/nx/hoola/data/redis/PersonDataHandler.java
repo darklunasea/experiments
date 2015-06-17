@@ -1,4 +1,4 @@
-package nx.hoola.data;
+package nx.hoola.data.redis;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public class PersonDataHandler extends BasicData
 	public boolean isFriend(String personId, String friendId)
 	{
 		String friendList = KeySchema.PersonFriends.getKey(personId);
-		return redis().isMemberOnSet(friendList, friendId);
+		return redis().isMemberOnSortedSet(friendList, friendId);
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class PersonDataHandler extends BasicData
 		if (isPersonExist(friendId))
 		{
 			String friendList = KeySchema.PersonFriends.getKey(personId);
-			redis().addMemberOnSet(friendList, friendId);
+			redis().increaseMemberScoreOnSortedSet(friendList, friendId, DataSchema.NewFriendInitScore.doubleValue());
 		}
 	}
 	

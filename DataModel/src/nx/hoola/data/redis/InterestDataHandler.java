@@ -1,4 +1,4 @@
-package nx.hoola.data;
+package nx.hoola.data.redis;
 
 import java.util.List;
 

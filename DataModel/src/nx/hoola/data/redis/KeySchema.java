@@ -1,4 +1,4 @@
-package nx.hoola.data;
+package nx.hoola.data.redis;
 
 enum KeySchema
 {
@@ -7,8 +7,6 @@ enum KeySchema
 	 * Indicator of Active Event List.
 	 */
 	ActiveEventListIndicator("@e", Type.NoID),
-	IsActiveEventOffset("0", Type.NoID),
-	IsPublicEventOffset("1", Type.NoID),
 
 	// ========== Person ==========	
 	/**
@@ -131,7 +129,7 @@ enum KeySchema
 	/**
 	 * All active public events at the location. Set of event_id.
 	 */
-	LocationOfActivePublicEvents("l:<id>:$e-lst-@e", Type.ReqID),
+	LocationOfActiveEvents("l:<id>:$e-lst-@e", Type.ReqID),
 	
 	;
 
