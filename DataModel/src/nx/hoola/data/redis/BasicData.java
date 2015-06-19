@@ -1,5 +1,7 @@
 package nx.hoola.data.redis;
 
+import nx.hoola.data.scheme.KeyScheme;
+
 class BasicData
 {
 	private RedisEngine redis;
@@ -20,7 +22,7 @@ class BasicData
 	 */
 	public boolean isPersonExist(String personId)
 	{
-		String allPersonList = KeySchema.AllPersonsList.getKey(null);
+		String allPersonList = KeyScheme.AllPersonsList.getKey(null);
 		return redis().isMemberOnSet(allPersonList, personId);
 	}
 }

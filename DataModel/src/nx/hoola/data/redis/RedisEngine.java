@@ -78,6 +78,14 @@ public class RedisEngine
 			return result.getResult();
 		}
 	}
+	
+	public Long getNumberOfMembersOnSet(String key)
+	{
+		try (Jedis jedis = pool.getResource())
+		{
+			return jedis.scard(key);
+		}
+	}
 
 	public boolean getBitOnKey(String key, long offset)
 	{

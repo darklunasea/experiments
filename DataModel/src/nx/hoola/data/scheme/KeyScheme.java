@@ -1,6 +1,6 @@
-package nx.hoola.data.redis;
+package nx.hoola.data.scheme;
 
-enum KeySchema
+public enum KeyScheme
 {
 	// ========== Common ==========
 	/**
@@ -139,7 +139,7 @@ enum KeySchema
 	private String key;
 	private Type type;
 
-	private KeySchema(String key, Type type)
+	private KeyScheme(String key, Type type)
 	{
 		this.key = key;
 		this.type = type;

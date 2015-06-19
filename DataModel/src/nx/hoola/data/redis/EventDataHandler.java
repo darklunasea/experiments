@@ -2,6 +2,8 @@ package nx.hoola.data.redis;
 
 import java.util.List;
 
+import nx.hoola.data.scheme.KeyScheme;
+
 public class EventDataHandler extends BasicData
 {
 	public EventDataHandler(RedisEngine redis)
@@ -14,7 +16,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public Long getNewEventId()
 	{
-		String idCounter = KeySchema.EventIdCounter.getKey(null);
+		String idCounter = KeyScheme.EventIdCounter.getKey(null);
 		return redis().getNextIdByKey(idCounter);
 	}
 	
@@ -27,7 +29,7 @@ public class EventDataHandler extends BasicData
 	{
 		if (isPublic && isActive)
 		{
-			String actPubEventsList = KeySchema.AllActivePublicEventsList.getKey(null);
+			String actPubEventsList = KeyScheme.AllActivePublicEventsList.getKey(null);
 			redis().addMemberOnSet(actPubEventsList, eventId);
 		}
 	}
@@ -38,7 +40,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void addEventLocations(String eventId, String... locationIds)
 	{
-		String eventLocations = KeySchema.EventLocations.getKey(eventId);
+		String eventLocations = KeyScheme.EventLocations.getKey(eventId);
 		redis().addMembersOnSet(eventLocations, locationIds);
 	}
 
@@ -48,7 +50,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void removeEventLocations(String eventId, String... locationIds)
 	{
-		String eventLocations = KeySchema.EventLocations.getKey(eventId);
+		String eventLocations = KeyScheme.EventLocations.getKey(eventId);
 		redis().removeMembersOnSet(eventLocations, locationIds);
 	}
 
@@ -58,7 +60,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public List<String> getEventLocations(String eventId)
 	{
-		String eventLocations = KeySchema.EventLocations.getKey(eventId);
+		String eventLocations = KeyScheme.EventLocations.getKey(eventId);
 		return redis().getAllMembersOnSet(eventLocations);
 	}
 
@@ -68,7 +70,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void addEventInterestTags(String eventId, String... interestIds)
 	{
-		String eventInterestTags = KeySchema.EventInterestTags.getKey(eventId);
+		String eventInterestTags = KeyScheme.EventInterestTags.getKey(eventId);
 		redis().addMembersOnSet(eventInterestTags, interestIds);
 	}
 
@@ -78,7 +80,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void removeEventInterestTags(String eventId, String... interestIds)
 	{
-		String eventInterestTags = KeySchema.EventInterestTags.getKey(eventId);
+		String eventInterestTags = KeyScheme.EventInterestTags.getKey(eventId);
 		redis().removeMembersOnSet(eventInterestTags, interestIds);
 	}
 
@@ -88,7 +90,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public List<String> getAllEventInterestTags(String eventId)
 	{
-		String eventInterestTags = KeySchema.EventInterestTags.getKey(eventId);
+		String eventInterestTags = KeyScheme.EventInterestTags.getKey(eventId);
 		return redis().getAllMembersOnSet(eventInterestTags);
 	}
 
@@ -98,7 +100,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void addEventEditors(String eventId, String... personIds)
 	{
-		String eventEditors = KeySchema.EventEditors.getKey(eventId);
+		String eventEditors = KeyScheme.EventEditors.getKey(eventId);
 		redis().addMembersOnSet(eventEditors, personIds);
 	}
 
@@ -108,7 +110,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void removeEventEditors(String eventId, String... personIds)
 	{
-		String eventEditors = KeySchema.EventEditors.getKey(eventId);
+		String eventEditors = KeyScheme.EventEditors.getKey(eventId);
 		redis().removeMembersOnSet(eventEditors, personIds);
 	}
 
@@ -118,7 +120,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public List<String> getAllEventEditors(String eventId)
 	{
-		String eventEditors = KeySchema.EventEditors.getKey(eventId);
+		String eventEditors = KeyScheme.EventEditors.getKey(eventId);
 		return redis().getAllMembersOnSet(eventEditors);
 	}
 
@@ -128,7 +130,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void addLinkedEvents(String eventId, String... eventIds)
 	{
-		String linkedEvents = KeySchema.EventLinkedEvents.getKey(eventId);
+		String linkedEvents = KeyScheme.EventLinkedEvents.getKey(eventId);
 		redis().addMembersOnSet(linkedEvents, eventIds);
 	}
 
@@ -138,7 +140,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void removeLinkedEvents(String eventId, String... eventIds)
 	{
-		String linkedEvents = KeySchema.EventLinkedEvents.getKey(eventId);
+		String linkedEvents = KeyScheme.EventLinkedEvents.getKey(eventId);
 		redis().removeMembersOnSet(linkedEvents, eventIds);
 	}
 
@@ -148,7 +150,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public List<String> getAllLinkedEvents(String eventId)
 	{
-		String linkedEvents = KeySchema.EventLinkedEvents.getKey(eventId);
+		String linkedEvents = KeyScheme.EventLinkedEvents.getKey(eventId);
 		return redis().getAllMembersOnSet(linkedEvents);
 	}
 
@@ -158,7 +160,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void addAttendPerson(String eventId, String personId)
 	{
-		String attendPersons = KeySchema.EventAttendedByPersons.getKey(eventId);
+		String attendPersons = KeyScheme.EventAttendedByPersons.getKey(eventId);
 		redis().addMemberOnSet(attendPersons, personId);
 	}
 
@@ -168,8 +170,18 @@ public class EventDataHandler extends BasicData
 	 */
 	public void removeAttendPerson(String eventId, String personId)
 	{
-		String attendPersons = KeySchema.EventAttendedByPersons.getKey(eventId);
+		String attendPersons = KeyScheme.EventAttendedByPersons.getKey(eventId);
 		redis().removeMemberOnSet(attendPersons, personId);
+	}
+	
+	/**
+	 * @param eventId
+	 * @return
+	 */
+	public Long getNumberOfAttendPersons(String eventId)
+	{
+		String attendPersons = KeyScheme.EventAttendedByPersons.getKey(eventId);
+		return redis().getNumberOfMembersOnSet(attendPersons);
 	}
 
 	/**
@@ -178,7 +190,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public List<String> getAllAttendPersons(String eventId)
 	{
-		String attendPersons = KeySchema.EventAttendedByPersons.getKey(eventId);
+		String attendPersons = KeyScheme.EventAttendedByPersons.getKey(eventId);
 		return redis().getAllMembersOnSet(attendPersons);
 	}
 
@@ -186,9 +198,9 @@ public class EventDataHandler extends BasicData
 	 * @param eventId
 	 * @param personId
 	 */
-	public void addFavoritePerson(String eventId, String personId)
+	public void addMarkFavPerson(String eventId, String personId)
 	{
-		String favPersons = KeySchema.EventFavoritedByPersons.getKey(eventId);
+		String favPersons = KeyScheme.EventFavoritedByPersons.getKey(eventId);
 		redis().addMemberOnSet(favPersons, personId);
 	}
 
@@ -196,9 +208,9 @@ public class EventDataHandler extends BasicData
 	 * @param eventId
 	 * @param personId
 	 */
-	public void removeFavoritePerson(String eventId, String personId)
+	public void removeMarkFavPerson(String eventId, String personId)
 	{
-		String favPersons = KeySchema.EventFavoritedByPersons.getKey(eventId);
+		String favPersons = KeyScheme.EventFavoritedByPersons.getKey(eventId);
 		redis().removeMemberOnSet(favPersons, personId);
 	}
 
@@ -208,7 +220,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public List<String> getAllFavoritePersons(String eventId)
 	{
-		String favPersons = KeySchema.EventFavoritedByPersons.getKey(eventId);
+		String favPersons = KeyScheme.EventFavoritedByPersons.getKey(eventId);
 		return redis().getAllMembersOnSet(favPersons);
 	}
 
@@ -218,7 +230,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void increaseEventScore(String eventId, Long incrVal)
 	{
-		String eventScore = KeySchema.EventBasicScore.getKey(eventId);
+		String eventScore = KeyScheme.EventBasicScore.getKey(eventId);
 		redis().increaseKeyLongValue(eventScore, incrVal);
 	}
 
@@ -228,7 +240,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void decreaseEventScore(String eventId, Long decrVal)
 	{
-		String eventScore = KeySchema.EventBasicScore.getKey(eventId);
+		String eventScore = KeyScheme.EventBasicScore.getKey(eventId);
 		redis().decreaseKeyLongValue(eventScore, decrVal);
 	}
 
@@ -238,7 +250,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public Long getEventScore(String eventId)
 	{
-		String eventScore = KeySchema.EventBasicScore.getKey(eventId);
+		String eventScore = KeyScheme.EventBasicScore.getKey(eventId);
 		return redis().getKeyLongValue(eventScore);
 	}
 
@@ -248,7 +260,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void increaseEventRating(String eventId, Long incrVal)
 	{
-		String eventRating = KeySchema.EventRatingScore.getKey(eventId);
+		String eventRating = KeyScheme.EventRatingScore.getKey(eventId);
 		redis().increaseKeyLongValue(eventRating, incrVal);
 	}
 
@@ -258,7 +270,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public void decreaseEventRating(String eventId, Long decrVal)
 	{
-		String eventRating = KeySchema.EventRatingScore.getKey(eventId);
+		String eventRating = KeyScheme.EventRatingScore.getKey(eventId);
 		redis().decreaseKeyLongValue(eventRating, decrVal);
 	}
 
@@ -268,7 +280,7 @@ public class EventDataHandler extends BasicData
 	 */
 	public Long getEventRating(String eventId)
 	{
-		String eventRating = KeySchema.EventRatingScore.getKey(eventId);
+		String eventRating = KeyScheme.EventRatingScore.getKey(eventId);
 		return redis().getKeyLongValue(eventRating);
 	}
 }

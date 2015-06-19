@@ -2,6 +2,7 @@ package nx.hoola.data.redis;
 
 import java.util.List;
 
+import nx.hoola.data.scheme.KeyScheme;
 import redis.clients.jedis.Tuple;
 
 public class InterestDataHandler extends BasicData
@@ -16,7 +17,7 @@ public class InterestDataHandler extends BasicData
 	 */
 	public void addToAllInterestsList(String interestTag)
 	{
-		String interestsList = KeySchema.AllInterestTagsList.getKey(null);
+		String interestsList = KeyScheme.AllInterestTagsList.getKey(null);
 		redis().addMemberOnSet(interestsList, interestTag);
 	}
 	
@@ -27,7 +28,7 @@ public class InterestDataHandler extends BasicData
 	 */
 	public void addEventToInterest(String interestTag, String eventId, Double eventScore)
 	{
-		String tagEventList = KeySchema.InterestTagEvents.getKey(interestTag);
+		String tagEventList = KeyScheme.InterestTagEvents.getKey(interestTag);
 		redis().increaseMemberScoreOnSortedSet(tagEventList, eventId, eventScore);;
 	}
 	
@@ -38,7 +39,7 @@ public class InterestDataHandler extends BasicData
 	 */
 	public void increaseEventScoreUnderInterest(String interestTag, String eventId, Double IncrScore)
 	{
-		String tagEventList = KeySchema.InterestTagEvents.getKey(interestTag);
+		String tagEventList = KeyScheme.InterestTagEvents.getKey(interestTag);
 		redis().increaseMemberScoreOnSortedSet(tagEventList, eventId, IncrScore);
 	}
 	
@@ -48,7 +49,7 @@ public class InterestDataHandler extends BasicData
 	 */
 	public List<Tuple> getAllEventsUnderInterest(String interestTag)
 	{
-		String tagEventList = KeySchema.InterestTagEvents.getKey(interestTag);
+		String tagEventList = KeyScheme.InterestTagEvents.getKey(interestTag);
 		return redis().getAllMembersOnSortedSet(tagEventList);
 	}
 }

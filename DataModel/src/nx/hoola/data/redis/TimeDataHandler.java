@@ -2,6 +2,8 @@ package nx.hoola.data.redis;
 
 import java.util.List;
 
+import nx.hoola.data.scheme.KeyScheme;
+
 public class TimeDataHandler extends BasicData
 {
 	public TimeDataHandler(RedisEngine redis)
@@ -15,7 +17,7 @@ public class TimeDataHandler extends BasicData
 	 */
 	public void addEventByExpiredDate(String date, String eventId)
 	{
-		String expEventList = KeySchema.TimeOfExpireEvents.getKey(date);
+		String expEventList = KeyScheme.TimeOfExpireEvents.getKey(date);
 		redis().addMemberOnSet(expEventList, eventId);
 	}
 
@@ -25,7 +27,7 @@ public class TimeDataHandler extends BasicData
 	 */
 	public List<String> gatAllExpiredEventsByDate(String date)
 	{
-		String expEventList = KeySchema.TimeOfExpireEvents.getKey(date);
+		String expEventList = KeyScheme.TimeOfExpireEvents.getKey(date);
 		return redis().getAllMembersOnSet(expEventList);
 	}
 
@@ -37,7 +39,7 @@ public class TimeDataHandler extends BasicData
 	{
 		if (isPublic)
 		{
-			String pubEventList = KeySchema.TimeOfActivePublicEvents.getKey(date);
+			String pubEventList = KeyScheme.TimeOfActivePublicEvents.getKey(date);
 			redis().addMemberOnSet(pubEventList, eventId);
 		}
 	}
@@ -48,7 +50,7 @@ public class TimeDataHandler extends BasicData
 	 */
 	public List<String> getAllPublicEventsOfDate(String date)
 	{
-		String pubEventList = KeySchema.TimeOfActivePublicEvents.getKey(date);
+		String pubEventList = KeyScheme.TimeOfActivePublicEvents.getKey(date);
 		return redis().getAllMembersOnSet(pubEventList);
 	}
 }

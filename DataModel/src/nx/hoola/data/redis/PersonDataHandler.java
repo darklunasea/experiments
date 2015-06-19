@@ -2,6 +2,8 @@ package nx.hoola.data.redis;
 
 import java.util.List;
 
+import nx.hoola.data.scheme.DataScheme;
+import nx.hoola.data.scheme.KeyScheme;
 import redis.clients.jedis.Tuple;
 
 public class PersonDataHandler extends BasicData
@@ -16,7 +18,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void addToAllPersonsList(String personId)
 	{
-		String allPersonsList = KeySchema.AllPersonsList.getKey(null);
+		String allPersonsList = KeyScheme.AllPersonsList.getKey(null);
 		redis().addMemberOnSet(allPersonsList, personId);
 	}
 
@@ -27,7 +29,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public boolean isFriend(String personId, String friendId)
 	{
-		String friendList = KeySchema.PersonFriends.getKey(personId);
+		String friendList = KeyScheme.PersonFriends.getKey(personId);
 		return redis().isMemberOnSortedSet(friendList, friendId);
 	}
 
@@ -39,8 +41,8 @@ public class PersonDataHandler extends BasicData
 	{
 		if (isPersonExist(friendId))
 		{
-			String friendList = KeySchema.PersonFriends.getKey(personId);
-			redis().increaseMemberScoreOnSortedSet(friendList, friendId, DataSchema.NewFriendInitScore.doubleValue());
+			String friendList = KeyScheme.PersonFriends.getKey(personId);
+			redis().increaseMemberScoreOnSortedSet(friendList, friendId, DataScheme.P_NewFriendInitScore.doubleValue());
 		}
 	}
 	
@@ -50,7 +52,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void removeFriend(String personId, String friendId)
 	{
-		String friendList = KeySchema.PersonFriends.getKey(personId);
+		String friendList = KeyScheme.PersonFriends.getKey(personId);
 		redis().removeMemberOnSet(friendList, friendId);
 	}
 
@@ -60,7 +62,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public List<String> getAllFriends(String personId)
 	{
-		String friendList = KeySchema.PersonFriends.getKey(personId);
+		String friendList = KeyScheme.PersonFriends.getKey(personId);
 		return redis().getAllMembersOnSet(friendList);
 	}
 
@@ -70,7 +72,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void attendEvent(String personId, String eventId)
 	{
-		String eventList = KeySchema.PersonAttendEvents.getKey(personId);
+		String eventList = KeyScheme.PersonAttendEvents.getKey(personId);
 		redis().addMemberOnSet(eventList, eventId);
 	}
 	
@@ -80,7 +82,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void unattendEvent(String personId, String eventId)
 	{
-		String eventList = KeySchema.PersonAttendEvents.getKey(personId);
+		String eventList = KeyScheme.PersonAttendEvents.getKey(personId);
 		redis().removeMemberOnSet(eventList, eventId);
 	}
 	
@@ -90,7 +92,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public List<String> getAllAttendEvents(String personId)
 	{
-		String eventList = KeySchema.PersonAttendEvents.getKey(personId);
+		String eventList = KeyScheme.PersonAttendEvents.getKey(personId);
 		return redis().getAllMembersOnSet(eventList);
 	}
 	
@@ -100,7 +102,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void markFavoriteEvent(String personId, String eventId)
 	{
-		String favEventList = KeySchema.PersonFavoriteEvents.getKey(personId);
+		String favEventList = KeyScheme.PersonFavoriteEvents.getKey(personId);
 		redis().addMemberOnSet(favEventList, eventId);
 	}
 	
@@ -110,7 +112,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void unmarkFavoriteEvent(String personId, String eventId)
 	{
-		String favEventList = KeySchema.PersonFavoriteEvents.getKey(personId);
+		String favEventList = KeyScheme.PersonFavoriteEvents.getKey(personId);
 		redis().removeMemberOnSet(favEventList, eventId);
 	}
 	
@@ -120,7 +122,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public List<String> getAllFavoriteEvents(String personId)
 	{
-		String favEventList = KeySchema.PersonFavoriteEvents.getKey(personId);
+		String favEventList = KeyScheme.PersonFavoriteEvents.getKey(personId);
 		return redis().getAllMembersOnSet(favEventList);
 	}
 	
@@ -130,7 +132,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void invitedToEvent(String personId, String eventId, Double score)
 	{
-		String inviteEventList = KeySchema.PersonInvitedToEvents.getKey(personId);		
+		String inviteEventList = KeyScheme.PersonInvitedToEvents.getKey(personId);		
 		redis().increaseMemberScoreOnSortedSet(inviteEventList, eventId, score);
 	}
 	
@@ -140,7 +142,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void unInvitedToEvent(String personId, String eventId)
 	{
-		String inviteEventList = KeySchema.PersonInvitedToEvents.getKey(personId);
+		String inviteEventList = KeyScheme.PersonInvitedToEvents.getKey(personId);
 		redis().removeMembersOnSortedSet(inviteEventList, eventId);
 	}
 	
@@ -150,7 +152,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public List<Tuple> getAllInvitedToEvents(String personId)
 	{
-		String inviteEventList = KeySchema.PersonInvitedToEvents.getKey(personId);
+		String inviteEventList = KeyScheme.PersonInvitedToEvents.getKey(personId);
 		List<Tuple> list = redis().getAllMembersOnSortedSet(inviteEventList);
 		return list;
 	}
@@ -161,7 +163,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void addToAllEventsHistory(String personId, String eventId)
 	{
-		String allEventsList = KeySchema.PersonAllEvents.getKey(personId);
+		String allEventsList = KeyScheme.PersonAllEvents.getKey(personId);
 		redis().addMemberOnSet(allEventsList, eventId);
 	}
 	
@@ -171,7 +173,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void removeFromAllEventsHistory(String personId, String eventId)
 	{
-		String allEventsList = KeySchema.PersonAllEvents.getKey(personId);
+		String allEventsList = KeyScheme.PersonAllEvents.getKey(personId);
 		redis().removeMemberOnSet(allEventsList, eventId);
 	}
 	
@@ -181,7 +183,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public List<String> getAllEventsHistory(String personId)
 	{
-		String allEventsList = KeySchema.PersonAllEvents.getKey(personId);
+		String allEventsList = KeyScheme.PersonAllEvents.getKey(personId);
 		return redis().getAllMembersOnSet(allEventsList);
 	}
 	
@@ -192,7 +194,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void increaseInterestScore(String personId, String interest, Double incrScore)
 	{
-		String interestGrid = KeySchema.PersonInterestGrid.getKey(personId);
+		String interestGrid = KeyScheme.PersonInterestGrid.getKey(personId);
 		redis().increaseMemberScoreOnSortedSet(interestGrid, interest, incrScore);
 	}
 	
@@ -202,7 +204,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void removeInterests(String personId, String... interests)
 	{
-		String interestGrid = KeySchema.PersonInterestGrid.getKey(personId);
+		String interestGrid = KeyScheme.PersonInterestGrid.getKey(personId);
 		redis().removeMembersOnSortedSet(interestGrid, interests);
 	}
 	
@@ -212,7 +214,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public List<Tuple> getAllInterests(String personId)
 	{
-		String interestGrid = KeySchema.PersonInterestGrid.getKey(personId);
+		String interestGrid = KeyScheme.PersonInterestGrid.getKey(personId);
 		return redis().getAllMembersOnSortedSet(interestGrid);
 	}
 	
@@ -222,7 +224,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void increaseReputationScore(String personId, long incrRepScore)
 	{
-		String reputationScore = KeySchema.PersonReputation.getKey(personId);
+		String reputationScore = KeyScheme.PersonReputation.getKey(personId);
 		redis().increaseKeyLongValue(reputationScore, incrRepScore);
 	}
 	
@@ -232,7 +234,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public void addToRecommendationList(String personId, String... eventIds)
 	{
-		String recommendationList = KeySchema.PersonRecommendationEvents.getKey(personId);
+		String recommendationList = KeyScheme.PersonRecommendationEvents.getKey(personId);
 		redis().addMembersOnSet(recommendationList, eventIds);
 	}
 	
@@ -242,7 +244,7 @@ public class PersonDataHandler extends BasicData
 	 */
 	public List<String> getRecommendationList(String personId)
 	{
-		String recommendationList = KeySchema.PersonRecommendationEvents.getKey(personId);
+		String recommendationList = KeyScheme.PersonRecommendationEvents.getKey(personId);
 		return redis().getAllMembersOnSet(recommendationList);
 	}
 }

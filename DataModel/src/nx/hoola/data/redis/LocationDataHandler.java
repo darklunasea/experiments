@@ -2,6 +2,8 @@ package nx.hoola.data.redis;
 
 import java.util.List;
 
+import nx.hoola.data.scheme.KeyScheme;
+
 public class LocationDataHandler extends BasicData
 {
 	public LocationDataHandler(RedisEngine redis)
@@ -14,7 +16,7 @@ public class LocationDataHandler extends BasicData
 	 */
 	public void addToAllLocationsList(String locationId)
 	{
-		String locationsList = KeySchema.AllLocations.getKey(null);
+		String locationsList = KeyScheme.AllLocations.getKey(null);
 		redis().addMemberOnSet(locationsList, locationId);
 	}
 
@@ -24,7 +26,7 @@ public class LocationDataHandler extends BasicData
 	 */
 	public boolean isValidLocation(String locationId)
 	{
-		String locationsList = KeySchema.AllLocations.getKey(null);
+		String locationsList = KeyScheme.AllLocations.getKey(null);
 		return redis().isMemberOnSet(locationsList, locationId);
 	}
 
@@ -33,7 +35,7 @@ public class LocationDataHandler extends BasicData
 	 */
 	public List<String> getAllLocations()
 	{
-		String locationsList = KeySchema.AllLocations.getKey(null);
+		String locationsList = KeyScheme.AllLocations.getKey(null);
 		return redis().getAllMembersOnSet(locationsList);
 	}
 	
@@ -46,7 +48,7 @@ public class LocationDataHandler extends BasicData
 	{
 		if (isPublic)
 		{
-			String eventsByLocation = KeySchema.LocationOfActiveEvents.getKey(locationId);
+			String eventsByLocation = KeyScheme.LocationOfActiveEvents.getKey(locationId);
 			redis().addMemberOnSet(eventsByLocation, eventId);
 		}
 	}
@@ -57,7 +59,7 @@ public class LocationDataHandler extends BasicData
 	 */
 	public List<String> getAllPublicEventsByLocation(String locationId)
 	{
-		String eventsByLocation = KeySchema.LocationOfActiveEvents.getKey(locationId);
+		String eventsByLocation = KeyScheme.LocationOfActiveEvents.getKey(locationId);
 		return redis().getAllMembersOnSet(eventsByLocation);
 	}
 }
