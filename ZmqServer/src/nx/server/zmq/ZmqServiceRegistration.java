@@ -1,4 +1,4 @@
-package com.nx.zmqserver;
+package nx.server.zmq;
 
 import java.util.concurrent.ConcurrentHashMap;
 

@@ -1,6 +1,9 @@
-package com.nx.zmqserver;
+package nx.server.zmq;
 
-public class ZmqServerPoc
+import nx.server.zmq.IMsgHandler;
+import nx.server.zmq.ZmqServer;
+
+public class ZmqServerTest
 {
 	public static void main(String[] args) throws Exception
 	{

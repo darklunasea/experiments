@@ -1,6 +1,9 @@
-package com.nx.zmqserver;
+package nx.server.zmq;
 
-public class ZmqClientPoc
+import nx.server.zmq.ZmqClient;
+import nx.server.zmq.ZmqClientRequest;
+
+public class ZmqClientTest
 {
 	public static void main(String[] args)
 	{

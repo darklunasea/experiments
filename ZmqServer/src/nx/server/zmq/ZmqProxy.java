@@ -1,4 +1,4 @@
-package com.nx.zmqserver;
+package nx.server.zmq;
 
 import org.apache.log4j.Logger;
 import org.zeromq.ZMQ;

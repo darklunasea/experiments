@@ -1,11 +1,10 @@
-package com.nx.zmqserver;
+package nx.server.zmq;
 
 import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.twd.common.ipc.IpcZmqDealer;
 
 public class ZmqWorker implements Runnable
 {
@@ -17,7 +16,7 @@ public class ZmqWorker implements Runnable
 	IMsgHandler handler;
 	boolean isStop;
 
-	IpcZmqDealer dealer;
+	ZmqDealer dealer;
 	String workerId;
 
 	public ZmqWorker(int workerResponsePort, IMsgHandler handler, int index)
@@ -27,7 +26,7 @@ public class ZmqWorker implements Runnable
 		isStop = false;
 		gson = new GsonBuilder().create();
 		workerId = handler.getServiceName() + "_" + index;
-		dealer = new IpcZmqDealer(workerId.getBytes(), "localhost", workerResponsePort, 100);
+		dealer = new ZmqDealer(workerId.getBytes(), "localhost", workerResponsePort, 100);
 	}
 
 	public void stop()
