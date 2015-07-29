@@ -1,17 +1,17 @@
-package nx.server.zmq;
+package nx.server.zmq.components;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-public class ZmqServiceRegistration
+public class ZmqServiceRegistration implements IServiceRegistration
 {
 	final static Logger logger = Logger.getLogger(ZmqServiceRegistration.class);
+	
+	private final Object lock;	
 	int rrIndex;
-
 	// service registration
 	ConcurrentHashMap<String, ConcurrentHashMap<byte[], Boolean>> serviceReg;
-	Object lock;
 
 	public ZmqServiceRegistration()
 	{
@@ -20,54 +20,68 @@ public class ZmqServiceRegistration
 		serviceReg = new ConcurrentHashMap<String, ConcurrentHashMap<byte[], Boolean>>();
 	}
 
+	@Override
 	public boolean isServiceRegistered(String service)
 	{
-		synchronized (lock)
+		synchronized (getLock())
 		{
-			return serviceReg.containsKey(service);
+			return getServiceReg().containsKey(service);
 		}
 	}
 
-	public byte[] getFreeWorker(String service)
+	@Override
+	public byte[] getWorker(String service)
 	{
-		synchronized (lock)
+		synchronized (getLock())
 		{
-			ConcurrentHashMap<byte[], Boolean> workerReg = serviceReg.get(service);
+			// get free worker
+			ConcurrentHashMap<byte[], Boolean> workerReg = getServiceReg().get(service);
 			for (byte[] id : workerReg.keySet())
 			{
 				if (workerReg.get(id))
 				{
-					serviceReg.get(service).put(id, false);
+					getServiceReg().get(service).put(id, false);
 					return id;
 				}
 			}
+			return null;
 		}
-		return null;
 	}
 
+	@Override
 	public void onWorkerResponse(String service, byte[] workerId)
 	{
-		synchronized (lock)
+		synchronized (getLock())
 		{
-			if (!serviceReg.containsKey(service))
+			if (!getServiceReg().containsKey(service))
 			{
 				// register the worker under service and mark it as free
 				ConcurrentHashMap<byte[], Boolean> workerReg = new ConcurrentHashMap<byte[], Boolean>();
 				workerReg.put(workerId, true);
-				serviceReg.put(service, workerReg);
+				getServiceReg().put(service, workerReg);
 				logger.info("Worker [" + new String(workerId) + "] register to service [" + service + "]");
 			}
 			else
 			{
-				if (!serviceReg.get(service).containsKey(workerId))
+				if (!getServiceReg().get(service).containsKey(workerId))
 				{
 					logger.info("Worker [" + new String(workerId) + "] register to service [" + service + "]");
 				}
 				// if first time register, mark it as free
 				// in any case, if a worker is responding, mark it as free
-				serviceReg.get(service).put(workerId, true);
+				getServiceReg().get(service).put(workerId, true);
 			}
 		}
+	}
+
+	protected ConcurrentHashMap<String, ConcurrentHashMap<byte[], Boolean>> getServiceReg()
+	{
+		return serviceReg;
+	}	
+
+	protected Object getLock()
+	{
+		return lock;
 	}
 
 }

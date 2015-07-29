@@ -1,5 +1,7 @@
 package nx.server.zmq;
 
+import nx.server.zmq.components.ZmqDealer;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -14,7 +16,7 @@ public class ZmqClient
 		client = new ZmqDealer(clientId.getBytes(), host, port, timeout);
 	}
 	
-	public void send(ZmqClientRequest req)
+	public void send(ClientRequest req)
 	{
 		client.send(gson.toJson(req));
 	}

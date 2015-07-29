@@ -1,7 +1,7 @@
 package nx.server.zmq;
 
 import nx.server.zmq.ZmqClient;
-import nx.server.zmq.ZmqClientRequest;
+import nx.server.zmq.ClientRequest;
 
 public class ZmqClientTest
 {
@@ -13,9 +13,9 @@ public class ZmqClientTest
 		String service = "service2";
 		String request = "request2";		
 		
-		ZmqClientRequest req = new ZmqClientRequest();
+		ClientRequest req = new ClientRequest();
 		req.setService(service);
-		req.setData(request);
+		req.setRequest(request);
 		
 		client.send(req);
 		String ret = client.receive();

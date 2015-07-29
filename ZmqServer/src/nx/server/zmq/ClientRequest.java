@@ -1,9 +1,9 @@
 package nx.server.zmq;
 
-public class ZmqClientRequest
+public class ClientRequest
 {
 	String service;
-	String data;
+	String request;
 
 	public String getService()
 	{
@@ -15,14 +15,14 @@ public class ZmqClientRequest
 		this.service = service;
 	}
 
-	public String getData()
+	public String getRequest()
 	{
-		return data;
+		return request;
 	}
 
-	public void setData(String data)
+	public void setRequest(String request)
 	{
-		this.data = data;
+		this.request = request;
 	}
 
 }

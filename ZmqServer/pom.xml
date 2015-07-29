@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<name>ZmqServer</name>
-	<groupId>com.nx</groupId>
+	<groupId>nx.server</groupId>
 	<artifactId>zmq-server</artifactId>
 	<version>1.0-SNAPSHOT</version>
 

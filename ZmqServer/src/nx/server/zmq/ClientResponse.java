@@ -1,6 +1,6 @@
 package nx.server.zmq;
 
-public class ZmqClientResponse
+public class ClientResponse
 {
 	String data;
 	String error;

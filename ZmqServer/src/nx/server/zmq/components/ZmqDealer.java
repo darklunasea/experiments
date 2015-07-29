@@ -1,4 +1,4 @@
-package nx.server.zmq;
+package nx.server.zmq.components;
 
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Poller;

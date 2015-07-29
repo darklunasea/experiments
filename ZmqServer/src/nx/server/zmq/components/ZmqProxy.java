@@ -1,4 +1,7 @@
-package nx.server.zmq;
+package nx.server.zmq.components;
+
+import nx.server.zmq.ClientRequest;
+import nx.server.zmq.ClientResponse;
 
 import org.apache.log4j.Logger;
 import org.zeromq.ZMQ;
@@ -10,7 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-public class ZmqProxy implements Runnable
+public class ZmqProxy implements IProxy
 {
 	final static Logger logger = Logger.getLogger(ZmqProxy.class);
 
@@ -24,13 +27,14 @@ public class ZmqProxy implements Runnable
 	Socket workerSocket;
 	Poller poll;
 
-	ZmqServiceRegistration serviceReg;
+	IServiceRegistration serviceReg;
 
-	public ZmqProxy(int clientRequestPort, int workerResponsePort)
+	public ZmqProxy(int clientRequestPort, int workerResponsePort, IServiceRegistration serviceReg)
 	{
+		this.serviceReg = serviceReg;
+		
 		isStop = false;
 		gson = new GsonBuilder().create();
-		serviceReg = new ZmqServiceRegistration();
 
 		initZmq(clientRequestPort, workerResponsePort);
 	}
@@ -57,7 +61,7 @@ public class ZmqProxy implements Runnable
 		logger.info("Zmq proxy binds to client port [" + clientRequestPort + "] and worker port ["
 				+ workerResponsePort + "]");
 	}
-
+	
 	public void stop()
 	{
 		isStop = true;
@@ -111,7 +115,7 @@ public class ZmqProxy implements Runnable
 		workerSocket.close();
 	}
 	
-	private void handleRequest(byte[] clientId, byte[] req)
+	protected void handleRequest(byte[] clientId, byte[] req)
 	{
 		if (req == null)
 		{
@@ -119,10 +123,10 @@ public class ZmqProxy implements Runnable
 			return;
 		}
 
-		ZmqClientRequest request;
+		ClientRequest request;
 		try
 		{
-			request = gson.fromJson(new String(req), ZmqClientRequest.class);
+			request = getGson().fromJson(new String(req), ClientRequest.class);
 		}
 		catch (JsonSyntaxException e)
 		{
@@ -134,7 +138,7 @@ public class ZmqProxy implements Runnable
 		}
 
 		String service = request.getService();
-		if (!serviceReg.isServiceRegistered(service))
+		if (!getServiceReg().isServiceRegistered(service))
 		{
 			// no worker registered for this service
 			// send error to client
@@ -148,7 +152,7 @@ public class ZmqProxy implements Runnable
 		int retry = 0;
 		while (retry < MAX_GET_FREE_WORKER_RETRY_TIME)
 		{
-			workerId = serviceReg.getFreeWorker(service);
+			workerId = getServiceReg().getWorker(service);
 			if (workerId != null)
 			{
 				break;
@@ -178,18 +182,15 @@ public class ZmqProxy implements Runnable
 		}
 
 		// send request to the worker
-		ZmqWorkerRequest workerReq = new ZmqWorkerRequest();
-		workerReq.setClientId(clientId);
-		workerReq.setData(request.getData());
-		sendToWorker(workerId, gson.toJson(workerReq));
+		sendWorkerRequest(clientId, workerId, request.getRequest());
 	}
 	
-	private void handleResponse(byte[] workerId, byte[] resp)
+	protected void handleResponse(byte[] workerId, byte[] resp)
 	{
 		ZmqWorkerResponse msg;
 		try
 		{
-			msg = gson.fromJson(new String(resp), ZmqWorkerResponse.class);
+			msg = getGson().fromJson(new String(resp), ZmqWorkerResponse.class);
 		}
 		catch (JsonSyntaxException e)
 		{
@@ -198,7 +199,7 @@ public class ZmqProxy implements Runnable
 			return;
 		}
 
-		serviceReg.onWorkerResponse(msg.getService(), workerId);		
+		getServiceReg().onWorkerResponse(msg.getService(), workerId);		
 
 		byte[] clientId = msg.getClientId();
 		if (clientId == null || clientId.length == 0)
@@ -207,30 +208,48 @@ public class ZmqProxy implements Runnable
 		}
 
 		// send to client
-		ZmqClientResponse response = new ZmqClientResponse();
+		ClientResponse response = new ClientResponse();
 		response.setData(msg.getData());
 		response.setError(msg.getError());
-		String responseStr = gson.toJson(response);
+		String responseStr = getGson().toJson(response);
 
 		sendToClient(clientId, responseStr);
 	}
 	
-	private String createErrorResponse(String error)
+	protected String createErrorResponse(String error)
 	{
-		ZmqClientResponse resp = new ZmqClientResponse();
+		ClientResponse resp = new ClientResponse();
 		resp.setError(error);
-		return gson.toJson(resp);
+		return getGson().toJson(resp);
 	}
 
-	private void sendToClient(byte[] clientId, String response)
+	protected void sendToClient(byte[] clientId, String response)
 	{
 		clientSocket.send(clientId, ZMQ.SNDMORE);
 		clientSocket.send(response, 0);
 	}
 
-	private void sendToWorker(byte[] workerId, String request)
+	protected void sendWorkerRequest(byte[] clientId, byte[] workerId, String data)
+	{
+		ZmqWorkerRequest workerReq = new ZmqWorkerRequest();
+		workerReq.setClientId(clientId);	
+		workerReq.setData(data);
+		sendToWorker(workerId, getGson().toJson(workerReq));
+	}
+
+	protected void sendToWorker(byte[] workerId, String request)
 	{
 		workerSocket.send(workerId, ZMQ.SNDMORE);
 		workerSocket.send(request, 0);
+	}
+
+	protected Gson getGson()
+	{
+		return gson;
+	}
+	
+	protected IServiceRegistration getServiceReg()
+	{
+		return serviceReg;
 	}
 }
